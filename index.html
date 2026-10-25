@@ -103,9 +103,13 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 #scan-rescan::before{content:"";position:absolute;inset:0 0 0 50%;background:var(--bone);transform:translateX(calc((1 - var(--seam,1)) * 100%));will-change:transform}
 #scan-rescan > .wrap{position:relative}
 @media (max-width:919px){#scan-rescan::before{display:none}}
-#scan-rescan .shot{clip-path:inset(0 calc((1 - var(--open,1)) * 50%) 0 calc((1 - var(--open,1)) * 50%) round clamp(12px,1.6vw,20px))}
-/* HOLYphantam's window rings open from the handpan, like a struck note spreading */
-#holyphantam .shot{clip-path:circle(calc(var(--ring,1) * 160%) at 15% 52%)}
+/* the screenshots play their reveal once, when they arrive and their image has loaded: Scan & Rescan opens from its seam,
+   HOLYphantam rings open from the handpan like a struck note. Shown fully by default; only the motion class hides them first. */
+#scan-rescan .shot,#holyphantam .shot{transition:clip-path 1.15s cubic-bezier(.16,1,.3,1),-webkit-clip-path 1.15s cubic-bezier(.16,1,.3,1),transform 1.15s cubic-bezier(.16,1,.3,1)}
+#scan-rescan .shot{-webkit-clip-path:inset(0 0 0 0 round 16px);clip-path:inset(0 0 0 0 round 16px)}
+.motion #scan-rescan .shot:not(.in){-webkit-clip-path:inset(0 50% 0 50% round 16px);clip-path:inset(0 50% 0 50% round 16px)}
+#holyphantam .shot{-webkit-clip-path:circle(150% at 15% 52%);clip-path:circle(150% at 15% 52%);transition-duration:1.4s}
+.motion #holyphantam .shot:not(.in){-webkit-clip-path:circle(0% at 15% 52%);clip-path:circle(0% at 15% 52%);transform:scale(.97)}
 .steps li{transition:transform .7s cubic-bezier(.16,1,.3,1),opacity .7s}
 .steps.pre li{opacity:0;transform:translateY(18px)}
 #scan-rescan .p-text p{color:var(--ink-dim)}
@@ -276,7 +280,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
         <p class="note">This beta is the black sun, Scan, as a plugin. The white sun, Rescan, joins it in the next beta, and you'll get it first.</p>
       </div>
       <div>
-        <figure class="shot"><img src="assets/scan-rescan.webp" width="1881" height="871" alt="Scan & Rescan: a black sun of white rays on the left, a white sun of black rays on the right, six effect planets on the seam between them." loading="lazy"></figure>
+        <figure class="shot"><img src="assets/scan-rescan.webp" width="1881" height="871" alt="Scan & Rescan: a black sun of white rays on the left, a white sun of black rays on the right, six effect planets on the seam between them." decoding="async"></figure>
         <div class="player" id="srPlayer">
           <div class="player-head">
             <span class="now" aria-live="polite">Tap a preset to hear it</span>
@@ -303,7 +307,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
         </div>
       </div>
       <div>
-        <figure class="shot"><img src="assets/holyphantam.webp" width="1600" height="1029" alt="HOLYphantam's window: four handpan layers across the top, a large handpan with note names, halo, envelope, filter, space and echo controls, and a full piano keyboard." loading="lazy"></figure>
+        <figure class="shot"><img src="assets/holyphantam.webp" width="1600" height="1029" alt="HOLYphantam's window: four handpan layers across the top, a large handpan with note names, halo, envelope, filter, space and echo controls, and a full piano keyboard." decoding="async"></figure>
         <div class="player" id="hpPlayer">
           <div class="player-head"><span class="now" aria-live="polite">Tap a sound to hear it</span></div>
           <div class="presets" role="group" aria-label="HOLYphantam sounds"></div>
@@ -442,19 +446,31 @@ send("view", { src: qs.get("utm_source") || qs.get("s") || "" });
 
 requestAnimationFrame(() => setTimeout(() => document.getElementById("fan").classList.add("in"), 120));
 
-/* ---------- scroll: each value runs 0 → 1 as its element arrives; CSS defaults are 1, so without JS everything is simply shown ---------- */
-if (!reduced) {
+/* ---------- motion. Without JS, or with reduced motion, everything is simply shown ---------- */
+if (!reduced && "IntersectionObserver" in window) {
   const root = document.documentElement;
-  const sr = document.getElementById("scan-rescan"), srShot = sr.querySelector(".shot"), hpShot = document.querySelector("#holyphantam .shot");
-  const arrive = (el, span) => { const r = el.getBoundingClientRect(), vh = innerHeight; return Math.min(1, Math.max(0, (vh - r.top) / (vh * span))); };
-  const ease = t => 1 - Math.pow(1 - t, 3);
+  root.classList.add("motion");
+  // reveals: once, when at least a fifth is on screen and the picture has decoded
+  const shots = document.querySelectorAll("#scan-rescan .shot, #holyphantam .shot");
+  const reveal = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    reveal.unobserve(e.target);
+    const img = e.target.querySelector("img");
+    const go = () => requestAnimationFrame(() => e.target.classList.add("in"));
+    (img.decode ? img.decode() : Promise.resolve()).then(go, go);
+  }), { threshold: .2 });
+  shots.forEach(el => reveal.observe(el));
+  setTimeout(() => shots.forEach(el => el.classList.add("in")), 9000); // never leave a picture hidden
+  // scrubbed with the scroll, transform only: the hero windows drift apart; on wide screens the white half slides in
+  const sr = document.getElementById("scan-rescan"), wide = matchMedia("(min-width: 920px)");
   let ticking = false;
   function frame() {
     ticking = false;
     root.style.setProperty("--hero", Math.min(1, scrollY / (innerHeight * .9)).toFixed(3));
-    sr.style.setProperty("--seam", ease(arrive(sr, .75)).toFixed(3));
-    srShot.style.setProperty("--open", ease(arrive(srShot, .6)).toFixed(3));
-    hpShot.style.setProperty("--ring", ease(arrive(hpShot, .7)).toFixed(3));
+    if (wide.matches) {
+      const r = sr.getBoundingClientRect(), t = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight * .75)));
+      sr.style.setProperty("--seam", (1 - Math.pow(1 - t, 3)).toFixed(3));
+    }
   }
   addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
   addEventListener("resize", frame);
