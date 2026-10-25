@@ -230,8 +230,28 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .motion .hero .lede{animation:focusIn 1s cubic-bezier(.16,1,.3,1) .95s both}
 .motion .hero .cta > *{animation:focusIn .9s cubic-bezier(.16,1,.3,1) 1.1s both}
 .motion .hero .cta > :nth-child(2){animation-delay:1.18s}
-.motion .fan .f-sr{animation:surface 1.4s cubic-bezier(.16,1,.3,1) 1.2s both}
-.motion .fan .f-hp{animation:surface 1.4s cubic-bezier(.16,1,.3,1) 1.36s both}
+.motion .fan:not(.in) figure{opacity:0}
+.motion .fan.in .f-sr{animation:surface 1.4s cubic-bezier(.16,1,.3,1) var(--d,1.2s) both}
+.motion .fan.in .f-hp{animation:surface 1.4s cubic-bezier(.16,1,.3,1) calc(var(--d,1.2s) + .16s) both}
+/* on a phone the sun frames the title alone, and its rays thin out before the text */
+@media (max-width:640px){
+  .sun{width:128vw;top:clamp(150px,44vw,210px);-webkit-mask-image:radial-gradient(closest-side,#000 48%,transparent 92%);mask-image:radial-gradient(closest-side,#000 48%,transparent 92%)}
+  .fan{margin-top:56px}
+}
+
+/* HOLYphantam: a struck note. Rings leave the handpan in the screenshot (14.5% across, 51% down) and spread over the
+   page, each a little later and softer, like the modes of the steel ringing out. On arrival and with every sound played. */
+.struck{position:relative}
+.rings{position:absolute;z-index:2;left:14.5%;top:calc(var(--sh,62vw) * .51);width:min(1400px,240vw);aspect-ratio:1;translate:-50% -50%;pointer-events:none;overflow:visible}
+.rings circle{fill:none;stroke:var(--ink);stroke-width:1.4;vector-effect:non-scaling-stroke;opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.02)}
+@keyframes ring{0%{opacity:0;transform:scale(.02)}8%{opacity:.55}100%{opacity:0;transform:scale(1)}}
+.rings.go circle{animation:ring 2.6s cubic-bezier(.2,.7,.3,1) both}
+.rings.go circle:nth-child(2){animation-delay:.16s;animation-duration:2.9s}
+.rings.go circle:nth-child(3){animation-delay:.34s;animation-duration:3.2s}
+.rings.go circle:nth-child(4){animation-delay:.56s;animation-duration:3.6s}
+@keyframes strike{0%{transform:none}14%{transform:scale(.985)}100%{transform:none}}
+.struck.go .shot{animation:strike .9s cubic-bezier(.16,1,.3,1)}
+#holyphantam{overflow:clip}
 
 /* section titles: each word rises through its own mask as the section arrives */
 .split .w{display:inline-block;overflow:hidden;padding:.06em .02em .16em;margin:-.06em -.02em -.16em;vertical-align:top}
@@ -281,6 +301,11 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
         </button>
       </div>
 
+      <div class="fan" id="fan" aria-hidden="true">
+        <figure class="f-sr"><img src="assets/scan-rescan.webp" width="1881" height="871" alt=""></figure>
+        <figure class="f-hp"><img src="assets/holyphantam.webp" width="1600" height="1029" alt=""></figure>
+      </div>
+
       <div class="phone" id="phone">
         <h2>You're on your phone</h2>
         <p>These run on a Mac. Leave your email and we'll send both download links, so they're waiting on your computer.</p>
@@ -289,11 +314,6 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
           <button class="btn btn-solid" type="submit">Send</button>
         </form>
         <div class="msg" id="sendMsg" role="status"></div>
-      </div>
-
-      <div class="fan" id="fan" aria-hidden="true">
-        <figure class="f-sr"><img src="assets/scan-rescan.webp" width="1881" height="871" alt=""></figure>
-        <figure class="f-hp"><img src="assets/holyphantam.webp" width="1600" height="1029" alt=""></figure>
       </div>
     </div>
   </section>
@@ -341,7 +361,10 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
         </div>
       </div>
       <div>
+        <div class="struck" id="struck">
+        <svg class="rings" viewBox="-50 -50 100 100" aria-hidden="true"><circle r="49"/><circle r="49"/><circle r="49"/><circle r="49"/></svg>
         <figure class="shot"><img src="assets/holyphantam.webp" width="1600" height="1029" alt="HOLYphantam's window: four handpan layers across the top, a large handpan with note names, halo, envelope, filter, space and echo controls, and a full piano keyboard." decoding="async"></figure>
+        </div>
         <div class="player" id="hpPlayer">
           <div class="player-head"><span class="now" aria-live="polite">Tap a sound to hear it</span></div>
           <div class="presets" role="group" aria-label="HOLYphantam sounds"></div>
@@ -480,6 +503,13 @@ send("view", { src: qs.get("utm_source") || qs.get("s") || "" });
 if (!reduced && "IntersectionObserver" in window) {
   const root = document.documentElement;
   root.classList.add("motion");
+  // the hero windows surface when they come into view: on time with the title on a desktop, on scroll on a phone
+  const fan = document.getElementById("fan"), t0 = performance.now();
+  new IntersectionObserver((es, io) => es.forEach(e => { if (!e.isIntersecting) return; io.disconnect();
+    fan.style.setProperty("--d", Math.max(0, 1200 - (performance.now() - t0)) / 1000 + "s"); fan.classList.add("in"); }), { threshold: .2 }).observe(fan);
+  setTimeout(() => fan.classList.add("in"), 9000);
+  // HOLYphantam is struck once when it arrives
+  new IntersectionObserver((es, io) => es.forEach(e => { if (e.isIntersecting) { io.disconnect(); setTimeout(strike, 350); } }), { threshold: .45 }).observe(document.getElementById("struck"));
   // section titles: split into words (a soft hyphen stays inside its word), each rises through its mask
   const titles = document.querySelectorAll(".band h2.display");
   const seen = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { seen.unobserve(e.target); e.target.classList.add("in"); } }), { threshold: .4 });
@@ -517,6 +547,16 @@ if (!reduced && "IntersectionObserver" in window) {
   const arrive = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { arrive.unobserve(e.target); go(e.target); } }), { threshold: .15 });
   groups.forEach(sel => document.querySelectorAll(sel).forEach(el => { el.classList.add("rise", "pre"); arrive.observe(el); }));
   setTimeout(() => document.querySelectorAll(".rise.pre").forEach(el => { if (el.getBoundingClientRect().top < innerHeight) go(el); }), 4000);
+}
+
+/* ---------- the strike: rings from the handpan (also played with each HOLYphantam sound) ---------- */
+const struckEl = document.getElementById("struck"), ringsEl = struckEl.querySelector(".rings");
+function strike() {
+  if (reduced) return;
+  struckEl.style.setProperty("--sh", struckEl.querySelector(".shot").offsetHeight + "px");
+  ringsEl.classList.remove("go"); struckEl.classList.remove("go");
+  void ringsEl.getBoundingClientRect();
+  ringsEl.classList.add("go"); struckEl.classList.add("go");
 }
 
 /* ---------- preset players: one sound at a time across the page ---------- */
@@ -567,6 +607,7 @@ function play(boxId, preset, btn) {
   const d = box.querySelector(".dry"); if (d) d.hidden = !preset.dry;
   syncHero();
   send("play", { plugin: PLAYERS[boxId].plugin, side: preset.id });
+  if (boxId === "hpPlayer") strike();
 }
 // hold to hear the loop before the plugin touched it: both play in step, only the volumes swap
 function holdDry(on) {
