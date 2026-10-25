@@ -64,14 +64,11 @@ img{max-width:100%;height:auto;display:block}
 .hero .lede{max-width:36ch;margin:20px auto 0;color:var(--blue-ink);font-size:clamp(17px,2.2vw,19px)}
 .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px;color:#fff}
 .fan{position:relative;max-width:940px;margin:52px auto 0;height:clamp(240px,44vw,470px)}
-.fan figure{position:absolute;margin:0;border-radius:clamp(10px,1.5vw,18px);overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);transition:transform 1.1s cubic-bezier(.16,1,.3,1),opacity .9s}
-/* the two windows sit centred and overlap at the middle; scrolling away eases them apart (the "translate" property, so it never fights the entrance transform) */
-.fan .f-sr{width:70%;left:3%;top:16%;transform:rotate(-2deg);translate:calc(var(--hero,0) * -4%) 0;z-index:1}
-.fan .f-hp{width:46%;right:3%;top:0;transform:rotate(2.5deg);translate:calc(var(--hero,0) * 5%) calc(var(--hero,0) * -3%);z-index:2}
-.fan:not(.in) .f-sr{transform:translate(5%,10%) rotate(0);opacity:0}
-.fan:not(.in) .f-hp{transform:translate(-5%,12%) rotate(0);opacity:0}
+.fan figure{position:absolute;margin:0;border-radius:clamp(10px,1.5vw,18px);overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06)}
+/* the two windows sit centred and overlap at the middle */
+.fan .f-sr{width:70%;left:3%;top:16%;transform:rotate(-2deg);z-index:1}
+.fan .f-hp{width:46%;right:3%;top:0;transform:rotate(2.5deg);z-index:2}
 @media (max-width:640px){.fan{height:84vw;margin-top:40px}.fan .f-sr{width:84%;left:0;top:36%}.fan .f-hp{width:56%;right:0;top:0}}
-@media (prefers-reduced-motion:reduce){.fan figure{transition:none}.fan:not(.in) figure{opacity:1}}
 
 .phone{display:none;max-width:560px;margin:34px auto 0;padding:18px;border-radius:var(--r);background:var(--blue-deep);text-align:left}
 .is-phone .phone{display:block}
@@ -103,15 +100,11 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 #scan-rescan::before{content:"";position:absolute;inset:0 0 0 50%;background:var(--bone);transform:translateX(calc((1 - var(--seam,1)) * 100%));will-change:transform}
 #scan-rescan > .wrap{position:relative}
 @media (max-width:919px){#scan-rescan::before{display:none}}
-/* the screenshots play their reveal once, when they arrive and their image has loaded: Scan & Rescan opens from its seam,
-   HOLYphantam rings open from the handpan like a struck note. Shown fully by default; only the motion class hides them first. */
-#scan-rescan .shot,#holyphantam .shot{transition:clip-path 1.15s cubic-bezier(.16,1,.3,1),-webkit-clip-path 1.15s cubic-bezier(.16,1,.3,1),transform 1.15s cubic-bezier(.16,1,.3,1)}
-#scan-rescan .shot{-webkit-clip-path:inset(0 0 0 0 round 16px);clip-path:inset(0 0 0 0 round 16px)}
-.motion #scan-rescan .shot:not(.in){-webkit-clip-path:inset(0 50% 0 50% round 16px);clip-path:inset(0 50% 0 50% round 16px)}
-#holyphantam .shot{-webkit-clip-path:circle(150% at 15% 52%);clip-path:circle(150% at 15% 52%);transition-duration:1.4s}
-.motion #holyphantam .shot:not(.in){-webkit-clip-path:circle(0% at 15% 52%);clip-path:circle(0% at 15% 52%);transform:scale(.97)}
-.steps li{transition:transform .7s cubic-bezier(.16,1,.3,1),opacity .7s}
-.steps.pre li{opacity:0;transform:translateY(18px)}
+/* one motion for the whole page, the install steps' one: things arrive as a list, one after another, rising a little.
+   Shown by default; only a group marked .pre (set by the script) holds its items back. Preset rows slide in from the side. */
+.rise > *{transition:transform .7s cubic-bezier(.16,1,.3,1),opacity .7s}
+.rise.pre > *{opacity:0;transform:translateY(18px)}
+.presets.rise.pre > *{transform:translateX(24px)}
 #scan-rescan .p-text p{color:var(--ink-dim)}
 #scan-rescan .shot{box-shadow:0 0 0 1px var(--ink-line),0 50px 100px -40px rgba(0,0,0,.6)}
 
@@ -320,7 +313,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
     <div class="wrap">
       <h2 class="display sec" id="in-h">Installing takes two minutes</h2>
       <p class="sub">We're not in Apple's paid signing program yet, so your Mac asks you to approve the installer once. That's the only extra step.</p>
-      <ol class="steps">
+      <ol class="steps rise">
         <li><b>Open the file</b><span>Scan &amp; Rescan: double-click the <kbd>.pkg</kbd>. HOLYphantam: unzip, then double-click <kbd>install.command</kbd>.</span></li>
         <li><b>Press Done</b><span>Your Mac says it can't check the file. Press <kbd>Done</kbd>, not Move to Trash.</span></li>
         <li><b>Open Anyway</b><span><kbd>System Settings → Privacy &amp; Security</kbd>, scroll down, press <kbd>Open Anyway</kbd>, enter your password, and run it to the end.</span></li>
@@ -444,29 +437,15 @@ function send(type, data = {}) {
 const qs = new URLSearchParams(location.search);
 send("view", { src: qs.get("utm_source") || qs.get("s") || "" });
 
-requestAnimationFrame(() => setTimeout(() => document.getElementById("fan").classList.add("in"), 120));
-
 /* ---------- motion. Without JS, or with reduced motion, everything is simply shown ---------- */
 if (!reduced && "IntersectionObserver" in window) {
   const root = document.documentElement;
   root.classList.add("motion");
-  // reveals: once, when at least a fifth is on screen and the picture has decoded
-  const shots = document.querySelectorAll("#scan-rescan .shot, #holyphantam .shot");
-  const reveal = new IntersectionObserver(es => es.forEach(e => {
-    if (!e.isIntersecting) return;
-    reveal.unobserve(e.target);
-    const img = e.target.querySelector("img");
-    const go = () => requestAnimationFrame(() => e.target.classList.add("in"));
-    (img.decode ? img.decode() : Promise.resolve()).then(go, go);
-  }), { threshold: .2 });
-  shots.forEach(el => reveal.observe(el));
-  setTimeout(() => shots.forEach(el => el.classList.add("in")), 9000); // never leave a picture hidden
-  // scrubbed with the scroll, transform only: the hero windows drift apart; on wide screens the white half slides in
+  // scrubbed with the scroll, transform only: on wide screens the white half slides in
   const sr = document.getElementById("scan-rescan"), wide = matchMedia("(min-width: 920px)");
   let ticking = false;
   function frame() {
     ticking = false;
-    root.style.setProperty("--hero", Math.min(1, scrollY / (innerHeight * .9)).toFixed(3));
     if (wide.matches) {
       const r = sr.getBoundingClientRect(), t = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight * .75)));
       sr.style.setProperty("--seam", (1 - Math.pow(1 - t, 3)).toFixed(3));
@@ -475,11 +454,19 @@ if (!reduced && "IntersectionObserver" in window) {
   addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
   addEventListener("resize", frame);
   frame();
-  // the install steps arrive as a list, one after another
-  const steps = document.querySelector(".steps");
-  steps.classList.add("pre");
-  steps.querySelectorAll("li").forEach((li, i) => li.style.transitionDelay = i * 90 + "ms");
-  new IntersectionObserver((es, io) => es.forEach(e => { if (e.isIntersecting) { steps.classList.remove("pre"); io.disconnect(); } }), { threshold: .25 }).observe(steps);
+  // lists arrive one item after another: the hero on load, the rest as each comes on screen
+  const groups = [".hero > .wrap", ".p-text", ".chips", ".presets", "#install > .wrap", ".steps", "#feedback .fb > div:first-child", "#feedback .fb"];
+  // (delays are set as a group arrives, so items added later, like the preset buttons, join the list)
+  const go = el => {
+    const kids = [...el.children];
+    kids.forEach((c, i) => c.style.transitionDelay = i * 90 + "ms");
+    el.classList.remove("pre");
+    // once arrived, the items get their own transitions back (hover, pressed)
+    setTimeout(() => { el.classList.remove("rise"); kids.forEach(c => c.style.transitionDelay = ""); }, kids.length * 90 + 800);
+  };
+  const arrive = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { arrive.unobserve(e.target); go(e.target); } }), { threshold: .15 });
+  groups.forEach(sel => document.querySelectorAll(sel).forEach(el => { el.classList.add("rise", "pre"); arrive.observe(el); }));
+  setTimeout(() => document.querySelectorAll(".rise.pre").forEach(el => { if (el.getBoundingClientRect().top < innerHeight) go(el); }), 4000);
 }
 
 /* ---------- preset players: one sound at a time across the page ---------- */
