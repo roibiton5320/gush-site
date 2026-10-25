@@ -396,7 +396,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 <footer>
   <div class="wrap">
     <a class="logo" href="#">GUSH</a>
-    <span>No cookies. We count visits, plays and downloads anonymously, to know what to build next.</span>
+    <span>No cookies, no ads, no trackers. An anonymous random number counts visits, plays and downloads, so we know what to build next.</span>
     <a href="https://instagram.com/roibiton">@roibiton</a>
   </div>
 </footer>
@@ -420,6 +420,12 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 // Events go to Gush's own collector (a Google Apps Script web app writing to a Sheet).
 const COLLECT = "https://script.google.com/macros/s/AKfycbw9rar4tYBAups_250Y_4G5zuVuBoHoLms-DV7w1t-FguI6bXBis1dAv-sLuMy2lw1W/exec";
 const SID = Math.random().toString(36).slice(2, 10);
+// one anonymous random id per browser, so a refresh or a second click is the same person; ?me=1 marks your own visits so the dashboard leaves them out
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+let VID = store.get("gush_vid");
+if (!VID) { VID = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)); store.set("gush_vid", VID); }
+if (new URLSearchParams(location.search).get("me") === "1") store.set("gush_me", "1");
+const ME = store.get("gush_me") === "1";
 const isPhone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
 const inInstagram = /Instagram/i.test(navigator.userAgent);
 if (isPhone) document.documentElement.classList.add("is-phone");
@@ -428,7 +434,7 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 function send(type, data = {}) {
   if (!COLLECT) return Promise.resolve(false);
   let ref = ""; try { ref = document.referrer ? new URL(document.referrer).hostname : ""; } catch (e) {}
-  const body = JSON.stringify({ type, sid: SID, path: location.pathname + location.hash, ref, phone: isPhone, ig: inInstagram, lang: navigator.language, w: innerWidth, ...data });
+  const body = JSON.stringify({ type, sid: SID, vid: VID, me: ME, path: location.pathname + location.hash, ref, phone: isPhone, ig: inInstagram, lang: navigator.language, w: innerWidth, ...data });
   return fetch(COLLECT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body }).then(() => true, () => false);
 }
 const qs = new URLSearchParams(location.search);
