@@ -1,21 +1,422 @@
 <!doctype html>
 <html lang="en">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gush</title>
-<meta name="description" content="Gush: audio plugins for Mac. Soon, free.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gush · free plugins for Mac</title>
+<meta name="description" content="Scan and HOLYphantam: two free audio plugins for Mac. VST3, AU and standalone. Beta.">
+<meta property="og:title" content="Gush · free plugins for Mac">
+<meta property="og:description" content="Scan and HOLYphantam. Free beta, VST3 / AU / standalone.">
+<meta property="og:image" content="https://gush.best/assets/scan.webp">
+<meta name="theme-color" content="#111013">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%23111013%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial Black,Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f4f1ec%22%3EG%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
 <style>
-:root{--ground:#151513;--ink:#ecebe4;--dim:#a3a29a;color-scheme:dark}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ground:#151513}}
-:root[data-theme="dark"]{--ground:#151513}
-html,body{margin:0;height:100%;background:var(--ground);color:var(--ink)}
-body{display:grid;place-items:center;font:400 17px/1.5 system-ui,-apple-system,"Helvetica Neue",sans-serif;padding:24px;box-sizing:border-box}
-main{text-align:center}
-h1{margin:0;font-weight:800;font-size:clamp(72px,18vw,160px);line-height:.85;letter-spacing:-.02em}
-p{margin:18px 0 0;color:var(--dim)}
-a{color:var(--ink);text-underline-offset:3px}
+:root{
+  --ground:#111013; --ground-2:#19171d; --line:#2b2830; --ink:#f4f1ec; --dim:#aaa5b1; --faint:#8f8a98;
+  --violet:#8d78ff; --violet-deep:#3b2a7a; --copper:#d27a43; --copper-deep:#6e3216; --ok:#9fe3b0;
+  --pill:#f4f1ec; --pill-ink:#141217;
+  --wide:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --r:22px; --gut:max(18px, env(safe-area-inset-left, 0px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 17px/1.55 var(--wide);font-variation-settings:"wdth" 100;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--violet);color:#fff}
+a{color:inherit;text-underline-offset:.22em;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:8px}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:1180px;margin:0 auto;padding-left:var(--gut);padding-right:max(18px, env(safe-area-inset-right, 0px))}
+.display{font-family:var(--wide);font-variation-settings:"wdth" 125;font-weight:800;letter-spacing:-.035em;line-height:.92;text-wrap:balance;margin:0}
+
+/* top */
+.top{position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top,0px);background:color-mix(in srgb,var(--ground) 78%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid transparent;transition:border-color .3s}
+.top.scrolled{border-bottom-color:var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-variation-settings:"wdth" 125;font-weight:900;font-size:22px;letter-spacing:-.02em;text-decoration:none}
+.top nav{display:flex;gap:22px;font-size:15px;color:var(--dim)}
+.top nav a{text-decoration:none}.top nav a:hover{color:var(--ink)}
+@media (max-width:560px){.top nav .hide-s{display:none}}
+
+/* buttons */
+.btn{appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:54px;padding:0 26px;border-radius:999px;font:700 16px/1 var(--wide);font-variation-settings:"wdth" 112;letter-spacing:.005em;text-decoration:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),background-color .25s,box-shadow .25s;white-space:nowrap}
+.btn svg{width:18px;height:18px;flex:none}
+.btn:active{transform:scale(.97)}
+.btn-pill{background:var(--pill);color:var(--pill-ink);box-shadow:0 10px 30px -12px rgba(0,0,0,.6)}
+.btn-pill:hover{background:#fff}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.btn-ghost[aria-pressed="true"]{background:rgba(255,255,255,.14)}
+.size{font-weight:500;opacity:.65}
+
+/* hero */
+.hero{position:relative;padding:44px 0 26px;text-align:center;isolation:isolate}
+.glow{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;z-index:-1;pointer-events:none}
+.hero .g1{width:520px;height:420px;left:50%;top:180px;margin-left:-470px;background:var(--violet-deep)}
+.hero .g2{width:520px;height:420px;left:50%;top:260px;margin-left:-40px;background:var(--copper-deep)}
+.badge{display:inline-flex;align-items:center;gap:10px;padding:7px 14px 7px 8px;border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font-size:14px;color:var(--dim)}
+.badge b{background:var(--ok);color:#0d2414;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+.hero h1{font-size:clamp(46px,11.5vw,112px);margin:22px auto 0;max-width:11ch}
+.hero p.lede{max-width:34ch;margin:20px auto 0;color:var(--dim);font-size:clamp(17px,2.2vw,19px)}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.fan{position:relative;max-width:980px;margin:46px auto 0;height:clamp(250px,52vw,560px)}
+.fan figure{position:absolute;margin:0;border-radius:clamp(10px,1.6vw,18px);overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.08);transition:transform 1.1s cubic-bezier(.16,1,.3,1),opacity .9s}
+.fan .f-hp{width:66%;left:2%;top:10%;transform:rotate(-5deg)}
+.fan .f-sc{width:50%;right:3%;top:0;transform:rotate(4deg)}
+.fan:not(.in) .f-hp{transform:translate(8%,10%) rotate(0);opacity:0}
+.fan:not(.in) .f-sc{transform:translate(-8%,12%) rotate(0);opacity:0}
+@media (max-width:640px){.fan{height:82vw;margin-top:36px}.fan .f-hp{width:84%;left:-4%;top:14%}.fan .f-sc{width:60%;right:-3%}}
+@media (prefers-reduced-motion:reduce){.fan figure{transition:none}.fan:not(.in) figure{opacity:1}}
+
+/* phone notice */
+.phone{display:none;max-width:560px;margin:34px auto 0;padding:18px;border-radius:var(--r);background:var(--ground-2);box-shadow:inset 0 0 0 1px var(--line);text-align:left}
+.is-phone .phone{display:block}
+.phone h2{font-size:19px;font-weight:700;margin:0;font-variation-settings:"wdth" 112}
+.phone p{margin:6px 0 14px;color:var(--dim);font-size:15px}
+.row{display:flex;gap:8px}
+.row input{flex:1;min-width:0}
+input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:#0c0b0e;border:1px solid var(--line);border-radius:14px;padding:0 16px;height:52px;width:100%}
+textarea{height:auto;min-height:92px;padding:14px 16px;resize:vertical}
+input::placeholder,textarea::placeholder{color:var(--faint)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--dim)}
+.msg{font-size:14px;margin-top:10px;min-height:1.4em;color:var(--dim)}
+.msg.ok{color:var(--ok)}
+
+/* products */
+.product{position:relative;padding:clamp(70px,10vw,130px) 0;isolation:isolate;overflow:hidden}
+.product .glow{width:760px;height:560px;opacity:.5;filter:blur(90px)}
+#scan .glow{background:var(--violet-deep);left:-180px;top:80px}
+#holyphantam .glow{background:var(--copper-deep);right:-200px;top:120px}
+.p-grid{display:grid;gap:clamp(28px,4vw,64px);align-items:center;grid-template-columns:1fr}
+@media (min-width:900px){.p-grid{grid-template-columns:5fr 7fr}#holyphantam .p-grid{grid-template-columns:7fr 5fr}#holyphantam .p-text{order:2}}
+.kind{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.p-text h2{font-size:clamp(48px,9vw,96px)}
+#scan h2{color:#d9d1ff}
+#holyphantam h2{color:#f6d7c1;font-size:clamp(38px,7.4vw,80px)}
+.p-text p{color:var(--dim);max-width:38ch;margin:18px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;padding:0;list-style:none}
+.chips li{font-size:13px;color:var(--dim);padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line)}
+.p-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.shot{position:relative;margin:0;border-radius:clamp(12px,1.6vw,20px);overflow:hidden;box-shadow:0 50px 100px -40px rgba(0,0,0,.95),0 0 0 1px rgba(255,255,255,.08)}
+.listen{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:4px;border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.seg button{appearance:none;border:0;background:transparent;color:var(--dim);font:600 14px/1 var(--wide);height:40px;padding:0 16px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--pill-ink)}
+.hint{font-size:14px;color:var(--faint)}
+.meter{display:flex;gap:3px;align-items:flex-end;height:18px}
+.meter i{width:3px;height:30%;background:currentColor;border-radius:2px;opacity:.8}
+.playing .meter i{animation:m .9s ease-in-out infinite alternate}
+.meter i:nth-child(2){animation-delay:-.3s}.meter i:nth-child(3){animation-delay:-.6s}.meter i:nth-child(4){animation-delay:-.15s}
+@keyframes m{to{height:100%}}
+@media (prefers-reduced-motion:reduce){.playing .meter i{animation:none;height:70%}}
+
+/* install */
+.band{padding:clamp(70px,9vw,120px) 0;border-top:1px solid var(--line)}
+.band h2{font-size:clamp(36px,6vw,64px)}
+.band .sub{color:var(--dim);margin:14px 0 0;max-width:46ch}
+.steps{list-style:none;padding:0;margin:40px 0 0;display:grid;gap:14px;counter-reset:s}
+@media (min-width:900px){.steps{grid-template-columns:repeat(4,1fr)}}
+.steps li{counter-increment:s;padding:22px;border-radius:var(--r);background:var(--ground-2);box-shadow:inset 0 0 0 1px var(--line)}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--pill-ink);font-weight:800;font-size:15px;margin-bottom:16px}
+.steps b{display:block;font-size:18px;font-variation-settings:"wdth" 112;margin-bottom:6px}
+.steps span{color:var(--dim);font-size:15px}
+.steps kbd{font:inherit;color:var(--ink);font-weight:600}
+.note{margin-top:22px;color:var(--faint);font-size:14px;max-width:70ch}
+
+/* feedback */
+.fb{display:grid;gap:clamp(30px,5vw,70px);grid-template-columns:1fr}
+@media (min-width:900px){.fb{grid-template-columns:5fr 7fr}}
+form.card{display:grid;gap:14px;padding:clamp(18px,3vw,30px);border-radius:var(--r);background:var(--ground-2);box-shadow:inset 0 0 0 1px var(--line)}
+label{display:grid;gap:7px;font-size:14px;color:var(--dim)}
+.two{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+.choices{display:flex;gap:8px;flex-wrap:wrap}
+.choices label{display:inline-flex;gap:0;cursor:pointer}
+.choices input{position:absolute;opacity:0;width:1px;height:1px}
+.choices span{display:inline-flex;align-items:center;height:42px;padding:0 16px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line);color:var(--ink);font-size:15px}
+.choices input:checked+span{background:var(--ink);color:var(--pill-ink)}
+.choices input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
+.dm{margin-top:22px;color:var(--dim)}
+
+footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);color:var(--faint);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+footer .logo{color:var(--ink)}
 </style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="logo" href="#">GUSH</a>
+    <nav aria-label="Main">
+      <a href="#scan">Scan</a>
+      <a href="#holyphantam">HOLYphantam</a>
+      <a class="hide-s" href="#install">Install</a>
+      <a href="#feedback">Feedback</a>
+    </nav>
+  </div>
+</header>
+
 <main>
-  <h1>GUSH</h1>
-  <p>Two plugins for Mac. Free, very soon.<br>Until then: <a href="https://instagram.com/roibiton">@roibiton</a></p>
+  <section class="hero">
+    <div class="glow g1"></div><div class="glow g2"></div>
+    <div class="wrap">
+      <span class="badge"><b>Beta</b> Free · Mac · VST3 · AU · App</span>
+      <h1 class="display">Two plugins. Free.</h1>
+      <p class="lede">A slicer that cuts your loop into the rays of a sun, and a handpan made of pure synthesis. Play them, then tell us what you felt.</p>
+      <div class="cta">
+        <a class="btn btn-pill" href="#scan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
+          Get both
+        </a>
+        <button class="btn btn-ghost" type="button" id="heroPlay" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+          <span>Hear them</span>
+        </button>
+      </div>
+
+      <div class="phone" id="phone">
+        <h2>You're on your phone</h2>
+        <p>These run on a Mac. Leave your email and we'll send you both download links, so they're waiting on your computer.</p>
+        <form class="row" id="sendForm" novalidate>
+          <input type="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Your email">
+          <button class="btn btn-pill" type="submit">Send</button>
+        </form>
+        <div class="msg" id="sendMsg" role="status"></div>
+      </div>
+
+      <div class="fan" id="fan" aria-hidden="true">
+        <figure class="f-hp"><img src="assets/holyphantam.webp" width="1600" height="1029" alt=""></figure>
+        <figure class="f-sc"><img src="assets/scan.webp" width="941" height="861" alt=""></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="product" id="scan" aria-labelledby="scan-h">
+    <div class="glow"></div>
+    <div class="wrap p-grid">
+      <div class="p-text">
+        <span class="kind">Effect · beta 0.9</span>
+        <h2 class="display" id="scan-h">Scan</h2>
+        <p>Drop it on any loop. Scan slices it into steps that orbit a black sun, then six planets (repeat, reverse, pitch, echo, blur, pan) bend each step. Roll the dice until it sounds like you.</p>
+        <ul class="chips"><li>VST3 · AU · Standalone</li><li>Apple Silicon + Intel</li><li>macOS 11+</li></ul>
+        <div class="p-actions">
+          <a class="btn btn-pill dl" data-plugin="scan" href="https://github.com/roibiton5320/gush-site/releases/download/beta-1/Scan-0.9.0-beta-mac.pkg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
+            Download Scan <span class="size">16 MB</span>
+          </a>
+        </div>
+      </div>
+      <div>
+        <figure class="shot"><img src="assets/scan.webp" width="941" height="861" alt="Scan's window: a black sun with white rays for steps, six effect planets on the left, gate and steps controls below." loading="lazy"></figure>
+        <div class="listen" id="scanListen">
+          <div class="seg" role="group" aria-label="Listen to Scan">
+            <button type="button" data-ab="dry" aria-pressed="false">Piano, dry</button>
+            <button type="button" data-ab="wet" aria-pressed="false">Through Scan</button>
+          </div>
+          <span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="hint">Switch while it plays</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="product" id="holyphantam" aria-labelledby="hp-h">
+    <div class="glow"></div>
+    <div class="wrap p-grid">
+      <div class="p-text">
+        <span class="kind">Instrument · 1.1</span>
+        <h2 class="display" id="hp-h">HOLY&shy;phantam</h2>
+        <p>A chromatic handpan built from how steel actually rings: no samples. Four layers, a halo, a cosmic space, a shadow underneath, and a player that plays itself when you stop.</p>
+        <ul class="chips"><li>VST3 · AU · Standalone</li><li>Apple Silicon + Intel</li><li>MIDI instrument</li></ul>
+        <div class="p-actions">
+          <a class="btn btn-pill dl" data-plugin="holyphantam" href="https://github.com/roibiton5320/gush-site/releases/download/beta-1/HOLYphantam-1.1-macOS.zip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
+            Download HOLYphantam <span class="size">24 MB</span>
+          </a>
+        </div>
+      </div>
+      <div>
+        <figure class="shot"><img src="assets/holyphantam.webp" width="1600" height="1029" alt="HOLYphantam's window: four handpan layers across the top, a large dark handpan with note names, halo, envelope, filter, space and echo controls, and a full piano keyboard." loading="lazy"></figure>
+        <div class="listen" id="hpListen">
+          <button class="btn btn-ghost" type="button" id="hpPlay" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+            <span>Play First Light</span>
+          </button>
+          <span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="install" aria-labelledby="in-h">
+    <div class="wrap">
+      <h2 class="display" id="in-h">Installing takes two minutes</h2>
+      <p class="sub">We're not in Apple's paid signing program yet, so your Mac asks you to approve the installer once. That's the only extra step.</p>
+      <ol class="steps">
+        <li><b>Open the file</b><span>Scan: double-click the <kbd>.pkg</kbd>. HOLYphantam: unzip, then double-click <kbd>install.command</kbd>.</span></li>
+        <li><b>Press Done</b><span>Your Mac says it can't check the file. Press <kbd>Done</kbd>, not Move to Trash.</span></li>
+        <li><b>Open Anyway</b><span><kbd>System Settings → Privacy &amp; Security</kbd>, scroll down, press <kbd>Open Anyway</kbd>, enter your password, and run it to the end.</span></li>
+        <li><b>Rescan in your DAW</b><span>Ableton: <kbd>Settings → Plug-Ins → Rescan</kbd>. Logic and GarageBand pick up the AU on their own.</span></li>
+      </ol>
+      <p class="note">Each one also installs a standalone app, so you can try it without a DAW. Stuck? DM <a href="https://instagram.com/roibiton">@roibiton</a> on Instagram with a screenshot.</p>
+    </div>
+  </section>
+
+  <section class="band" id="feedback" aria-labelledby="fb-h">
+    <div class="wrap fb">
+      <div>
+        <h2 class="display" id="fb-h">How did it feel?</h2>
+        <p class="sub">This is a beta. Honest beats nice: what made you smile, what annoyed you, what broke. Everything here goes straight to Roi.</p>
+        <p class="dm">Prefer to talk? <a href="https://instagram.com/roibiton">DM @roibiton</a></p>
+      </div>
+      <form class="card" id="fbForm" novalidate>
+        <div class="choices" role="radiogroup" aria-label="Which plugin">
+          <label><input type="radio" name="plugin" value="scan" checked><span>Scan</span></label>
+          <label><input type="radio" name="plugin" value="holyphantam"><span>HOLYphantam</span></label>
+          <label><input type="radio" name="plugin" value="both"><span>Both</span></label>
+        </div>
+        <div class="two">
+          <label>Your DAW<input name="daw" placeholder="Ableton 12, Logic…" autocomplete="off"></label>
+          <label>Did it install fine?
+            <select name="installed"><option value="">Choose</option><option>Yes, easily</option><option>Yes, but it was confusing</option><option>No, I got stuck</option></select>
+          </label>
+        </div>
+        <label>What did you put it on, and what was the first thing that made you smile (or annoyed you)?<textarea name="first"></textarea></label>
+        <label>Anything sound wrong or confusing? Clicks, glitches, out of time, a control you didn't get.<textarea name="wrong"></textarea></label>
+        <label>Would you pay $5 or more for it? What would make it a must-have?<textarea name="pay"></textarea></label>
+        <label>Email, if you want a reply or the next releases (optional)<input type="email" name="email" placeholder="you@email.com" autocomplete="email"></label>
+        <div><button class="btn btn-pill" type="submit">Send to Roi</button></div>
+        <div class="msg" id="fbMsg" role="status"></div>
+      </form>
+    </div>
+  </section>
 </main>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="#">GUSH</a>
+    <span>No cookies. We count visits, plays and downloads anonymously, to know what to build next.</span>
+    <a href="https://instagram.com/roibiton">@roibiton</a>
+  </div>
+</footer>
+
+<audio id="aDry" src="assets/piano-dry.mp3" preload="none" loop></audio>
+<audio id="aWet" src="assets/scan.mp3" preload="none" loop></audio>
+<audio id="aHp" src="assets/holyphantam.mp3" preload="none"></audio>
+
+<script>
+// Events go to Gush's own collector (a Google Apps Script web app writing to a Sheet).
+// Empty string = collector not connected yet; events are dropped.
+const COLLECT = "";
+const SID = Math.random().toString(36).slice(2, 10);
+const isPhone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+const inInstagram = /Instagram/i.test(navigator.userAgent);
+if (isPhone) document.documentElement.classList.add("is-phone");
+
+function send(type, data = {}) {
+  if (!COLLECT) return Promise.resolve(false);
+  const body = JSON.stringify({ type, sid: SID, path: location.pathname + location.hash, ref: document.referrer ? new URL(document.referrer).hostname : "", phone: isPhone, ig: inInstagram, lang: navigator.language, w: innerWidth, ...data });
+  return fetch(COLLECT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body }).then(() => true, () => false);
+}
+const utm = new URLSearchParams(location.search);
+send("view", { src: utm.get("utm_source") || utm.get("s") || "" });
+
+// header border once scrolled
+const bar = document.getElementById("top");
+addEventListener("scroll", () => bar.classList.toggle("scrolled", scrollY > 8), { passive: true });
+
+// fan entrance
+requestAnimationFrame(() => setTimeout(() => document.getElementById("fan").classList.add("in"), 120));
+
+// audio
+const aDry = document.getElementById("aDry"), aWet = document.getElementById("aWet"), aHp = document.getElementById("aHp");
+const scanBox = document.getElementById("scanListen"), hpBox = document.getElementById("hpListen");
+const segBtns = scanBox.querySelectorAll("[data-ab]"), hpBtn = document.getElementById("hpPlay"), heroBtn = document.getElementById("heroPlay");
+let scanSide = null;
+
+function setLabel(btn, playing, idle) {
+  btn.setAttribute("aria-pressed", playing);
+  btn.querySelector("span").textContent = playing ? "Stop" : idle;
+  btn.querySelector("svg").innerHTML = playing ? '<path d="M7 6h4v12H7zM13 6h4v12h-4z"/>' : '<path d="M8 5.5v13l11-6.5z"/>';
+}
+function stopScan() { aDry.pause(); aWet.pause(); scanSide = null; segBtns.forEach(b => b.setAttribute("aria-pressed", "false")); scanBox.classList.remove("playing"); }
+function stopHp() { aHp.pause(); aHp.currentTime = 0; setLabel(hpBtn, false, "Play First Light"); hpBox.classList.remove("playing"); }
+function syncHero() { setLabel(heroBtn, !!scanSide || !aHp.paused, "Hear them"); }
+
+function playScan(side) {
+  stopHp();
+  if (scanSide === side) { stopScan(); syncHero(); return; }
+  const on = side === "wet" ? aWet : aDry, off = side === "wet" ? aDry : aWet;
+  if (scanSide) on.currentTime = off.currentTime % (on.duration || 10);
+  off.pause(); on.play().catch(() => {});
+  scanSide = side;
+  segBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.ab === side));
+  scanBox.classList.add("playing"); syncHero();
+  send("play", { plugin: "scan", side });
+}
+segBtns.forEach(b => b.addEventListener("click", () => playScan(b.dataset.ab)));
+
+function playHp() {
+  if (!aHp.paused) { stopHp(); syncHero(); return; }
+  stopScan(); aHp.play().catch(() => {});
+  setLabel(hpBtn, true, "Play First Light"); hpBox.classList.add("playing"); syncHero();
+  send("play", { plugin: "holyphantam" });
+}
+hpBtn.addEventListener("click", playHp);
+aHp.addEventListener("ended", () => { stopHp(); syncHero(); });
+
+heroBtn.addEventListener("click", () => {
+  if (scanSide || !aHp.paused) { stopScan(); stopHp(); syncHero(); return; }
+  playScan("wet");
+  document.getElementById("scan").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+});
+
+// downloads: count, then let the browser follow the link
+document.querySelectorAll(".dl").forEach(a => a.addEventListener("click", e => {
+  send("download", { plugin: a.dataset.plugin });
+  if (isPhone) {
+    e.preventDefault();
+    const box = document.getElementById("phone");
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+    box.querySelector("input").focus({ preventScroll: true });
+    document.getElementById("sendMsg").innerHTML = 'It installs on a Mac. Send it there, or <a href="' + a.href + '">download anyway</a>.';
+  }
+}));
+
+const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+// phone: email the links to yourself
+document.getElementById("sendForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, msg = document.getElementById("sendMsg"), email = f.email.value.trim();
+  if (!emailOk(email)) { msg.className = "msg"; msg.textContent = "That email doesn't look right. Check it and try again."; f.email.focus(); return; }
+  f.querySelector("button").disabled = true;
+  const ok = await send("send_links", { email });
+  msg.className = "msg" + (ok ? " ok" : "");
+  msg.textContent = ok ? "Sent. Open it on your Mac." : "Couldn't send right now. Open gush.best on your Mac instead.";
+  if (ok) f.reset();
+  f.querySelector("button").disabled = false;
+});
+
+// feedback
+document.getElementById("fbForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, msg = document.getElementById("fbMsg");
+  const d = Object.fromEntries(new FormData(f));
+  if (!d.first.trim() && !d.wrong.trim() && !d.pay.trim()) { msg.className = "msg"; msg.textContent = "Write at least one answer, even a short one."; f.first.focus(); return; }
+  if (d.email && !emailOk(d.email.trim())) { msg.className = "msg"; msg.textContent = "That email doesn't look right. Fix it or leave it empty."; f.email.focus(); return; }
+  f.querySelector("button[type=submit]").disabled = true;
+  const ok = await send("feedback", d);
+  msg.className = "msg" + (ok ? " ok" : "");
+  msg.innerHTML = ok ? "Got it. Thank you, really." : 'Couldn\'t send right now. Please DM it to <a href="https://instagram.com/roibiton">@roibiton</a>.';
+  if (ok) f.reset();
+  f.querySelector("button[type=submit]").disabled = false;
+});
+</script>
+</body>
+</html>
