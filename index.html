@@ -17,6 +17,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<script>
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) document.documentElement.classList.add("motion");
+</script>
 <style>
 :root{
   /* two colours only, taken from the plugins themselves: Scan's black sun and Rescan's bone-white one */
@@ -181,8 +184,6 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .back{appearance:none;border:0;background:none;color:var(--ink-dim);font:inherit;font-size:15px;cursor:pointer;padding:8px 0}
 .on-ink input,.on-ink textarea{background:#0a0a0c;border-color:var(--ink-line)}
 .on-ink input:focus,.on-ink textarea:focus{border-color:var(--ink-dim)}
-.dm{margin-top:22px;color:var(--ink-dim)}
-.on-bone .dm{color:var(--bone-dim)}
 .on-bone .quiz{color:var(--ink-text)}
 .on-ink .steps li{background:var(--ink-2)}
 .on-ink .steps span{color:var(--ink-dim)}
@@ -205,6 +206,38 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .x{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;border:0;background:var(--bone-2);color:var(--bone-text);cursor:pointer;display:grid;place-items:center}
 .x svg{width:16px;height:16px}
 
+/* ---------- the opening: Scan's sun draws its rays round like a playhead, the title rises letter by letter
+   through its words' masks and comes into focus, then the two windows surface from out of focus.
+   Everything is visible by default; only html.motion (set in the head, never under reduced motion) plays it. */
+.hero{position:relative}
+.hero .wrap{position:relative}
+.hero .wrap > :not(.sun){position:relative;z-index:1}
+.sun{position:absolute;z-index:0;left:50%;top:clamp(150px,30vw,330px);width:min(1180px,170vw);aspect-ratio:1;translate:-50% -50%;rotate:var(--spin,0deg);pointer-events:none}
+.sun{-webkit-mask-image:radial-gradient(closest-side,#000 62%,transparent);mask-image:radial-gradient(closest-side,#000 62%,transparent)}
+.sun line{stroke:var(--bone);stroke-width:2.2;stroke-linecap:round;opacity:.07;stroke-dasharray:1;stroke-dashoffset:0}
+.sun line.on{opacity:.15;stroke-width:3}
+.hero h1 .w{display:inline-block;overflow:hidden;padding:.06em .02em .16em;margin:-.06em -.02em -.16em;vertical-align:top}
+.hero h1 .c{display:inline-block}
+@keyframes ray{from{stroke-dashoffset:1}}
+@keyframes rayFlash{0%{opacity:0}35%{opacity:.75}100%{}}
+@keyframes rise{from{transform:translateY(108%) rotate(6deg);filter:blur(6px)}}
+@keyframes focusIn{from{opacity:0;filter:blur(10px);transform:translateY(10px)}}
+@keyframes drop{from{opacity:0;transform:translateY(-10px) scale(.96)}}
+@keyframes surface{from{opacity:0;filter:blur(16px);transform:translateY(70px) scale(.9) rotate(0deg)}}
+.motion .sun line{animation:ray .9s cubic-bezier(.16,1,.3,1) calc(var(--i) * 18ms) both,rayFlash 1.1s ease-out calc(var(--i) * 18ms) both}
+.motion .hero h1 .c{animation:rise 1s cubic-bezier(.16,1,.3,1) calc(.25s + var(--n) * 32ms) both;transform-origin:0 100%}
+.motion .hero .badge{animation:drop .8s cubic-bezier(.16,1,.3,1) .9s both}
+.motion .hero .lede{animation:focusIn 1s cubic-bezier(.16,1,.3,1) .95s both}
+.motion .hero .cta > *{animation:focusIn .9s cubic-bezier(.16,1,.3,1) 1.1s both}
+.motion .hero .cta > :nth-child(2){animation-delay:1.18s}
+.motion .fan .f-sr{animation:surface 1.4s cubic-bezier(.16,1,.3,1) 1.2s both}
+.motion .fan .f-hp{animation:surface 1.4s cubic-bezier(.16,1,.3,1) 1.36s both}
+
+/* section titles: each word rises through its own mask as the section arrives */
+.split .w{display:inline-block;overflow:hidden;padding:.06em .02em .16em;margin:-.06em -.02em -.16em;vertical-align:top}
+.split .w > span{display:inline-block;transition:transform 1s cubic-bezier(.16,1,.3,1),filter 1s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--n) * 70ms)}
+.motion .split:not(.in) .w > span{transform:translateY(108%) rotate(4deg);filter:blur(5px)}
+
 footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));background:var(--blue);color:var(--blue-dim);font-size:14px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
 </style>
@@ -226,8 +259,16 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 <main>
   <section class="hero">
     <div class="wrap">
+      <svg class="sun" id="sun" viewBox="-500 -500 1000 1000" aria-hidden="true"><line class="on" x1="0.0" y1="-170.0" x2="0.0" y2="-483.7" pathLength="1" style="--i:0"/><line x1="22.2" y1="-168.5" x2="26.9" y2="-204.6" pathLength="1" style="--i:1"/><line class="on" x1="44.0" y1="-164.2" x2="98.5" y2="-367.5" pathLength="1" style="--i:2"/><line class="on" x1="65.1" y1="-157.1" x2="115.6" y2="-279.1" pathLength="1" style="--i:3"/><line x1="85.0" y1="-147.2" x2="106.3" y2="-184.1" pathLength="1" style="--i:4"/><line x1="103.5" y1="-134.9" x2="127.7" y2="-166.5" pathLength="1" style="--i:5"/><line class="on" x1="120.2" y1="-120.2" x2="294.6" y2="-294.6" pathLength="1" style="--i:6"/><line x1="134.9" y1="-103.5" x2="168.3" y2="-129.1" pathLength="1" style="--i:7"/><line class="on" x1="147.2" y1="-85.0" x2="409.9" y2="-236.7" pathLength="1" style="--i:8"/><line x1="157.1" y1="-65.1" x2="194.9" y2="-80.7" pathLength="1" style="--i:9"/><line class="on" x1="164.2" y1="-44.0" x2="347.3" y2="-93.0" pathLength="1" style="--i:10"/><line class="on" x1="168.5" y1="-22.2" x2="300.2" y2="-39.5" pathLength="1" style="--i:11"/><line x1="170.0" y1="0.0" x2="210.8" y2="0.0" pathLength="1" style="--i:12"/><line class="on" x1="168.5" y1="22.2" x2="383.5" y2="50.5" pathLength="1" style="--i:13"/><line class="on" x1="164.2" y1="44.0" x2="404.7" y2="108.4" pathLength="1" style="--i:14"/><line x1="157.1" y1="65.1" x2="191.8" y2="79.4" pathLength="1" style="--i:15"/><line class="on" x1="147.2" y1="85.0" x2="428.3" y2="247.3" pathLength="1" style="--i:16"/><line x1="134.9" y1="103.5" x2="173.9" y2="133.4" pathLength="1" style="--i:17"/><line class="on" x1="120.2" y1="120.2" x2="267.1" y2="267.1" pathLength="1" style="--i:18"/><line class="on" x1="103.5" y1="134.9" x2="191.0" y2="248.9" pathLength="1" style="--i:19"/><line x1="85.0" y1="147.2" x2="109.8" y2="190.2" pathLength="1" style="--i:20"/><line x1="65.1" y1="157.1" x2="78.4" y2="189.2" pathLength="1" style="--i:21"/><line class="on" x1="44.0" y1="164.2" x2="115.3" y2="430.2" pathLength="1" style="--i:22"/><line x1="22.2" y1="168.5" x2="27.2" y2="206.8" pathLength="1" style="--i:23"/><line class="on" x1="0.0" y1="170.0" x2="0.0" y2="477.2" pathLength="1" style="--i:24"/><line x1="-22.2" y1="168.5" x2="-26.9" y2="204.1" pathLength="1" style="--i:25"/><line class="on" x1="-44.0" y1="164.2" x2="-95.3" y2="355.6" pathLength="1" style="--i:26"/><line class="on" x1="-65.1" y1="157.1" x2="-125.9" y2="303.8" pathLength="1" style="--i:27"/><line x1="-85.0" y1="147.2" x2="-103.4" y2="179.2" pathLength="1" style="--i:28"/><line class="on" x1="-103.5" y1="134.9" x2="-230.1" y2="299.8" pathLength="1" style="--i:29"/><line class="on" x1="-120.2" y1="120.2" x2="-309.4" y2="309.4" pathLength="1" style="--i:30"/><line x1="-134.9" y1="103.5" x2="-166.6" y2="127.8" pathLength="1" style="--i:31"/><line class="on" x1="-147.2" y1="85.0" x2="-425.8" y2="245.9" pathLength="1" style="--i:32"/><line x1="-157.1" y1="65.1" x2="-189.4" y2="78.5" pathLength="1" style="--i:33"/><line class="on" x1="-164.2" y1="44.0" x2="-346.9" y2="93.0" pathLength="1" style="--i:34"/><line class="on" x1="-168.5" y1="22.2" x2="-304.3" y2="40.1" pathLength="1" style="--i:35"/><line x1="-170.0" y1="0.0" x2="-214.9" y2="0.0" pathLength="1" style="--i:36"/><line x1="-168.5" y1="-22.2" x2="-209.0" y2="-27.5" pathLength="1" style="--i:37"/><line class="on" x1="-164.2" y1="-44.0" x2="-411.3" y2="-110.2" pathLength="1" style="--i:38"/><line x1="-157.1" y1="-65.1" x2="-197.1" y2="-81.7" pathLength="1" style="--i:39"/><line class="on" x1="-147.2" y1="-85.0" x2="-422.9" y2="-244.2" pathLength="1" style="--i:40"/><line x1="-134.9" y1="-103.5" x2="-165.6" y2="-127.1" pathLength="1" style="--i:41"/><line class="on" x1="-120.2" y1="-120.2" x2="-272.7" y2="-272.7" pathLength="1" style="--i:42"/><line class="on" x1="-103.5" y1="-134.9" x2="-197.6" y2="-257.6" pathLength="1" style="--i:43"/><line x1="-85.0" y1="-147.2" x2="-104.0" y2="-180.1" pathLength="1" style="--i:44"/><line class="on" x1="-65.1" y1="-157.1" x2="-144.5" y2="-348.9" pathLength="1" style="--i:45"/><line class="on" x1="-44.0" y1="-164.2" x2="-112.2" y2="-418.6" pathLength="1" style="--i:46"/><line x1="-22.2" y1="-168.5" x2="-28.5" y2="-216.1" pathLength="1" style="--i:47"/></svg>
       <span class="badge"><b>Beta</b> Free · Mac · VST3 · AU · App</span>
-      <h1 class="display">Two plugins. Free.</h1>
+      <h1 class="display" id="h1" aria-label="Two plugins. Free.">Two plugins. Free.</h1>
+      <script>
+      /* split before first paint: every letter rides up inside its word's mask */
+      if (document.documentElement.classList.contains("motion")) {
+        const h = document.getElementById("h1"); let n = 0;
+        h.innerHTML = h.textContent.split(" ").map(w => `<span class="w" aria-hidden="true">${[...w].map(c => `<span class="c" style="--n:${n++}">${c}</span>`).join("")}</span>`).join(" ");
+      }
+      </script>
       <p class="lede">Two suns that slice your loop and turn it into clouds, and a handpan made of pure synthesis. Hear them, take them, tell us what you felt.</p>
       <div class="cta">
         <a class="btn btn-solid" href="#scan-rescan">
@@ -319,7 +360,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
         <li><b>Open Anyway</b><span><kbd>System Settings → Privacy &amp; Security</kbd>, scroll down, press <kbd>Open Anyway</kbd>, enter your password, and run it to the end.</span></li>
         <li><b>Rescan in your DAW</b><span>Ableton: <kbd>Settings → Plug-Ins → Rescan</kbd>. Logic and GarageBand pick up the AU on their own.</span></li>
       </ol>
-      <p class="foot-note">Each one also installs a standalone app, so you can try it without a DAW. Stuck? DM <a href="https://instagram.com/roibiton">@roibiton</a> on Instagram with a screenshot.</p>
+      <p class="foot-note">Each one also installs a standalone app, so you can try it without a DAW. Stuck? Tell us where in the <a href="#feedback">feedback form</a> and leave your email; we'll write back.</p>
     </div>
   </section>
 
@@ -327,8 +368,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
     <div class="wrap fb">
       <div>
         <h2 class="display sec" id="fb-h">How did it feel?</h2>
-        <p class="sub">Four taps, thirty seconds. Honest beats nice: it all goes straight to Roi.</p>
-        <p class="dm">Rather talk? <a href="https://instagram.com/roibiton">DM @roibiton</a></p>
+        <p class="sub">Four taps, thirty seconds. Honest beats nice: every answer is read by the person who made them.</p>
       </div>
       <form class="quiz" id="quiz" novalidate>
         <div class="dots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
@@ -375,13 +415,13 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
           <textarea name="change" aria-label="One thing you'd change" placeholder="Anything: a sound, a knob, the install…"></textarea>
           <input type="text" name="daw" aria-label="Your DAW" placeholder="Your DAW (Ableton, Logic…)" autocomplete="off">
           <input type="email" name="email" aria-label="Email, optional" placeholder="Email, if you want a reply or the next releases" autocomplete="email">
-          <div class="q-nav"><span></span><button class="btn btn-solid" type="submit">Send to Roi</button></div>
+          <div class="q-nav"><span></span><button class="btn btn-solid" type="submit">Send</button></div>
           <div class="msg" id="fbMsg" role="status"></div>
         </fieldset>
 
         <div class="q">
           <h3>Got it. Thank you, really.</h3>
-          <p class="hint">Roi reads every one. If you left your email, you'll hear back.</p>
+          <p class="hint">Every one gets read. If you left your email, you'll hear back.</p>
         </div>
 
         <div class="q-nav"><button class="back" type="button" id="back" hidden>Back</button></div>
@@ -394,7 +434,6 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   <div class="wrap">
     <a class="logo" href="#">GUSH</a>
     <span>No cookies, no ads, no trackers. An anonymous random number counts visits, plays and downloads, so we know what to build next.</span>
-    <a href="https://instagram.com/roibiton">@roibiton</a>
   </div>
 </footer>
 
@@ -441,11 +480,22 @@ send("view", { src: qs.get("utm_source") || qs.get("s") || "" });
 if (!reduced && "IntersectionObserver" in window) {
   const root = document.documentElement;
   root.classList.add("motion");
-  // scrubbed with the scroll, transform only: on wide screens the white half slides in
+  // section titles: split into words (a soft hyphen stays inside its word), each rises through its mask
+  const titles = document.querySelectorAll(".band h2.display");
+  const seen = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { seen.unobserve(e.target); e.target.classList.add("in"); } }), { threshold: .4 });
+  titles.forEach(h => {
+    h.setAttribute("aria-label", h.textContent.replace(/\u00AD/g, ""));
+    h.innerHTML = h.innerHTML.split(" ").map((w, n) => `<span class="w" aria-hidden="true"><span style="--n:${n}">${w}</span></span>`).join(" ");
+    h.classList.add("split"); seen.observe(h);
+  });
+  setTimeout(() => titles.forEach(h => { if (h.getBoundingClientRect().top < innerHeight) h.classList.add("in"); }), 4000);
+  // scrubbed with the scroll, transform only: the sun turns with you; on wide screens the white half slides in
+  const sun = document.getElementById("sun");
   const sr = document.getElementById("scan-rescan"), wide = matchMedia("(min-width: 920px)");
   let ticking = false;
   function frame() {
     ticking = false;
+    if (scrollY < innerHeight * 1.5) sun.style.setProperty("--spin", (scrollY * .06).toFixed(2) + "deg");
     if (wide.matches) {
       const r = sr.getBoundingClientRect(), t = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight * .75)));
       sr.style.setProperty("--seam", (1 - Math.pow(1 - t, 3)).toFixed(3));
@@ -455,7 +505,7 @@ if (!reduced && "IntersectionObserver" in window) {
   addEventListener("resize", frame);
   frame();
   // lists arrive one item after another: the hero on load, the rest as each comes on screen
-  const groups = [".hero > .wrap", ".p-text", ".chips", ".presets", "#install > .wrap", ".steps", "#feedback .fb > div:first-child", "#feedback .fb"];
+  const groups = [".chips", ".presets", ".steps"];
   // (delays are set as a group arrives, so items added later, like the preset buttons, join the list)
   const go = el => {
     const kids = [...el.children];
@@ -624,7 +674,7 @@ quiz.addEventListener("submit", async e => {
   const btn = quiz.querySelector("button[type=submit]"); btn.disabled = true;
   const ok = await send("feedback", { mood: answers.mood, plugin: answers.plugin, tags: answers.tags.join(","), change: quiz.change.value.trim(), daw: quiz.daw.value.trim(), email });
   btn.disabled = false;
-  if (ok) go(steps.length - 1); else msg.innerHTML = 'Couldn\'t send right now. Please DM it to <a href="https://instagram.com/roibiton">@roibiton</a>.';
+  if (ok) go(steps.length - 1); else msg.innerHTML = 'Couldn\'t send right now. Please try again in a minute.';
 });
 </script>
 </body>
