@@ -8,18 +8,18 @@
 <meta property="og:title" content="Gush · free plugins for Mac">
 <meta property="og:description" content="Scan & Rescan and HOLYphantam. Free beta, VST3 / AU / standalone.">
 <meta property="og:image" content="https://gush.best/assets/scan-rescan.webp">
-<meta name="theme-color" content="#2231c9">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232231c9%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial Black,Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f3f0e8%22%3EG%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#0d0d0f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230d0d0f%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial Black,Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f3f0e8%22%3EG%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* ultramarine is Gush; ink and bone are Scan & Rescan's two suns; copper is HOLYphantam's steel */
-  --blue:#2231c9; --blue-deep:#18239a; --blue-ink:#e9ebff; --blue-dim:#c3c9ff;
+  /* two colours only, taken from the plugins themselves: Scan's black sun and Rescan's bone-white one */
+  --blue:#0d0d0f; --blue-deep:#1a1a1d; --blue-ink:#ebe8e1; --blue-dim:#a9a6a0;
   --ink:#0c0c0e; --ink-2:#17171a; --ink-line:#2a2a2f; --ink-text:#f3f0e8; --ink-dim:#a9a6a0;
   --bone:#f3f0e8; --bone-2:#e8e4da; --bone-line:#d4cfc3; --bone-text:#121214; --bone-dim:#57544e;
-  --copper:#a04c1d; --copper-deep:#7a3812; --copper-text:#fff5ec; --copper-dim:#f8dcc8;
+  --copper:#f3f0e8; --copper-deep:#e6e1d6; --copper-text:#121214; --copper-dim:#57544e;
   --wide:"Archivo","Helvetica Neue",Arial,sans-serif;
   --r:22px; --gutL:max(18px, env(safe-area-inset-left, 0px)); --gutR:max(18px, env(safe-area-inset-right, 0px));
   color-scheme:dark;
@@ -60,7 +60,7 @@ img{max-width:100%;height:auto;display:block}
 .hero .lede{max-width:36ch;margin:20px auto 0;color:var(--blue-ink);font-size:clamp(17px,2.2vw,19px)}
 .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px;color:#fff}
 .fan{position:relative;max-width:1000px;margin:52px auto 0;height:clamp(250px,46vw,500px)}
-.fan figure{position:absolute;margin:0;border-radius:clamp(10px,1.5vw,18px);overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.45);transition:transform 1.1s cubic-bezier(.16,1,.3,1),opacity .9s}
+.fan figure{position:absolute;margin:0;border-radius:clamp(10px,1.5vw,18px);overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);transition:transform 1.1s cubic-bezier(.16,1,.3,1),opacity .9s}
 .fan .f-sr{width:78%;left:0;top:14%;transform:rotate(-3deg)}
 .fan .f-hp{width:48%;right:0;top:0;transform:rotate(4deg)}
 .fan:not(.in) .f-sr{transform:translate(6%,14%);opacity:0}
@@ -98,14 +98,18 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 #scan-rescan .p-text p{color:var(--ink-dim)}
 #scan-rescan .shot{box-shadow:0 0 0 1px var(--ink-line),0 50px 100px -40px rgba(0,0,0,.6)}
 
-/* HOLYphantam: copper drench */
+/* HOLYphantam: the bone half */
 #holyphantam{background:var(--copper);color:var(--copper-text)}
 #holyphantam .p-text p{color:var(--copper-dim)}
 #holyphantam h2{font-size:clamp(38px,7.2vw,80px)}
-@media (min-width:920px){#holyphantam h2{font-size:clamp(44px,4.6vw,64px)}}
+@media (min-width:920px){#holyphantam h2{font-size:clamp(40px,3.9vw,56px);hyphens:none}}
 
 .player{margin-top:18px;padding:16px;border-radius:var(--r);background:var(--ink-2);color:var(--ink-text)}
 #holyphantam .player{background:var(--copper-deep);color:var(--copper-text)}
+#holyphantam .btn-solid{background:var(--ink);color:var(--bone)}
+#holyphantam .presets button{background:rgba(0,0,0,.07)}
+#holyphantam .presets button[aria-pressed="true"]{background:var(--ink);color:var(--bone)}
+#holyphantam .shot{box-shadow:0 0 0 1px var(--bone-line),0 40px 80px -40px rgba(0,0,0,.35)}
 .player-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;min-height:38px}
 .now{font-size:14px;opacity:.9}
 .now b{font-weight:700}
@@ -158,8 +162,8 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .big button{min-height:88px;padding:16px;border-radius:18px;background:rgba(255,255,255,.06);font-weight:700;font-size:18px;font-variation-settings:"wdth" 112;display:flex;flex-direction:column;justify-content:space-between;gap:6px;transition:background .2s}
 .big button small{font-weight:400;font-size:13px;color:var(--ink-dim);font-variation-settings:"wdth" 100}
 .big button:hover{background:rgba(255,255,255,.1)}
-.big button[aria-pressed="true"]{background:var(--blue);color:#fff}
-.big button[aria-pressed="true"] small{color:var(--blue-ink)}
+.big button[aria-pressed="true"]{background:var(--bone);color:var(--ink)}
+.big button[aria-pressed="true"] small{color:var(--bone-dim)}
 .picks{display:flex;flex-wrap:wrap;gap:8px}
 .picks button{background:transparent;height:44px;padding:0 16px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--ink-line);font-size:15px}
 .picks button[aria-pressed="true"]{background:var(--bone);color:var(--ink);box-shadow:none}
@@ -168,6 +172,14 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .on-ink input,.on-ink textarea{background:#0a0a0c;border-color:var(--ink-line)}
 .on-ink input:focus,.on-ink textarea:focus{border-color:var(--ink-dim)}
 .dm{margin-top:22px;color:var(--ink-dim)}
+.on-bone .dm{color:var(--bone-dim)}
+.on-bone .quiz{color:var(--ink-text)}
+.on-ink .steps li{background:var(--ink-2)}
+.on-ink .steps span{color:var(--ink-dim)}
+.on-ink .steps kbd{color:var(--ink-text)}
+.on-ink .steps li::before{background:var(--bone);color:var(--ink)}
+.on-ink .foot-note{color:var(--ink-dim)}
+.band.on-ink + .band.on-ink{border-top:1px solid var(--ink-line)}
 
 /* after a download: a sheet slides up from the bottom; it never blocks the page */
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:0 var(--gutR) calc(14px + env(safe-area-inset-bottom,0px)) var(--gutL);pointer-events:none}
@@ -179,7 +191,7 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .sheet p{margin:6px 0 14px;color:var(--bone-dim);font-size:15px}
 .sheet input{background:#fff;color:var(--bone-text);border-color:var(--bone-line)}
 .sheet input:focus{border-color:var(--bone-text)}
-.sheet .btn-solid{background:var(--blue);color:#fff}
+.sheet .btn-solid{background:var(--ink);color:var(--bone)}
 .x{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;border:0;background:var(--bone-2);color:var(--bone-text);cursor:pointer;display:grid;place-items:center}
 .x svg{width:16px;height:16px}
 
@@ -287,7 +299,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
     </div>
   </section>
 
-  <section class="band on-bone" id="install" aria-labelledby="in-h">
+  <section class="band on-ink" id="install" aria-labelledby="in-h">
     <div class="wrap">
       <h2 class="display sec" id="in-h">Installing takes two minutes</h2>
       <p class="sub">We're not in Apple's paid signing program yet, so your Mac asks you to approve the installer once. That's the only extra step.</p>
@@ -301,7 +313,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
     </div>
   </section>
 
-  <section class="band on-ink" id="feedback" aria-labelledby="fb-h">
+  <section class="band on-bone" id="feedback" aria-labelledby="fb-h">
     <div class="wrap fb">
       <div>
         <h2 class="display sec" id="fb-h">How did it feel?</h2>
@@ -414,12 +426,13 @@ requestAnimationFrame(() => setTimeout(() => document.getElementById("fan").clas
 /* ---------- preset players: one sound at a time across the page ---------- */
 const PLAYERS = {
   srPlayer: { plugin: "scan-rescan", presets: [
-    { id: "night-market", name: "Night Market", src: "assets/sr-night-market.mp3", dry: "assets/dry-drums.mp3", desc: "swung stutters and echoes on a beat" },
-    { id: "frozen-choir", name: "Frozen Choir", src: "assets/sr-frozen-choir.mp3", dry: "assets/dry-piano.mp3", desc: "held chords turn into a slow choir" },
-    { id: "stutter-bloom", name: "Stutter Bloom", src: "assets/sr-stutter-bloom.mp3", dry: "assets/dry-drums.mp3", desc: "rolls of eight that open into clouds" },
-    { id: "glass-rain", name: "Glass Rain", src: "assets/sr-glass-rain.mp3", dry: "assets/dry-piano.mp3", desc: "fast slices over a rain of bright grains" },
-    { id: "backwards-tide", name: "Backwards Tide", src: "assets/sr-backwards-tide.mp3", dry: "assets/dry-drums.mp3", desc: "swells that breathe in backwards" },
-    { id: "half-moon", name: "Half Moon", src: "assets/sr-half-moon.mp3", dry: "assets/dry-piano.mp3", desc: "long tails, room to ring" }
+    { id: "frozen-choir", name: "Frozen Choir", src: "assets/sr-frozen-choir.mp3", dry: "assets/dry-voice.mp3", desc: "a hummed melody turns into a slow choir" },
+    { id: "stutter-bloom", name: "Stutter Bloom", src: "assets/sr-stutter-bloom.mp3", dry: "assets/dry-voice.mp3", desc: "the voice rolls, stutters and opens into clouds" },
+    { id: "night-market", name: "Night Market", src: "assets/sr-night-market.mp3", dry: "assets/dry-groove.mp3", desc: "swung stutters and echoes on a soul groove" },
+    { id: "backwards-tide", name: "Backwards Tide", src: "assets/sr-backwards-tide.mp3", dry: "assets/dry-voice.mp3", desc: "the voice breathes in backwards" },
+    { id: "glass-rain", name: "Glass Rain", src: "assets/sr-glass-rain.mp3", dry: "assets/dry-keys.mp3", desc: "fast slices over a rain of bright grains" },
+    { id: "half-moon", name: "Half Moon", src: "assets/sr-half-moon.mp3", dry: "assets/dry-keys.mp3", desc: "long tails, room for the keys to ring" },
+    { id: "slow-orbit", name: "Slow Orbit", src: "assets/sr-slow-orbit.mp3", dry: "assets/dry-keys.mp3", desc: "gliding fifths circle the chords" }
   ]},
   hpPlayer: { plugin: "holyphantam", presets: [
     { id: "first-light", name: "First Light", src: "assets/holyphantam.mp3", desc: "the sound it opens with" },
