@@ -312,7 +312,7 @@ footer .logo{color:var(--ink)}
 <script>
 // Events go to Gush's own collector (a Google Apps Script web app writing to a Sheet).
 // Empty string = collector not connected yet; events are dropped.
-const COLLECT = "";
+const COLLECT = "https://script.google.com/macros/s/AKfycbw9rar4tYBAups_250Y_4G5zuVuBoHoLms-DV7w1t-FguI6bXBis1dAv-sLuMy2lw1W/exec";
 const SID = Math.random().toString(36).slice(2, 10);
 const isPhone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
 const inInstagram = /Instagram/i.test(navigator.userAgent);
