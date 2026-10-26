@@ -192,7 +192,7 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .on-ink .foot-note{color:var(--ink-dim)}
 .band.on-ink + .band.on-ink{border-top:1px solid var(--ink-line)}
 
-/* after a download: a sheet slides up from the bottom; it never blocks the page */
+/* before a download on a computer: a sheet slides up and asks for the email the links go to */
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:0 var(--gutR) calc(14px + env(safe-area-inset-bottom,0px)) var(--gutL);pointer-events:none}
 .sheet-in{position:relative;max-width:560px;margin:0 auto;padding:20px;border-radius:24px;background:var(--bone);color:var(--bone-text);box-shadow:0 30px 80px -20px rgba(0,0,0,.55);transform:translateY(130%);transition:transform .55s cubic-bezier(.16,1,.3,1);pointer-events:auto}
 .sheet:not(.open) .sheet-in{visibility:hidden;transition:transform .55s cubic-bezier(.16,1,.3,1),visibility 0s .55s}
@@ -464,13 +464,13 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
     <button class="x" type="button" id="sheetX" aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
-    <h2 id="sheet-h">Downloading. Want the next ones first?</h2>
-    <p>Rescan, new presets and the next plugins. One email when something drops, never more.</p>
-    <form class="row" id="listForm" novalidate>
-      <input type="email" name="email" placeholder="you@email.com" autocomplete="email" aria-label="Your email">
-      <button class="btn btn-solid" type="submit">I'm in</button>
+    <h2 id="sheet-h">Where should we send it?</h2>
+    <p>Your download starts right away, and both plugins with the install steps land in your inbox. One email when something new drops, never more.</p>
+    <form class="row" id="gateForm" novalidate>
+      <input type="email" name="email" placeholder="you@email.com" autocomplete="email" aria-label="Your email" required>
+      <button class="btn btn-solid" type="submit">Download</button>
     </form>
-    <div class="msg" id="listMsg" role="status"></div>
+    <div class="msg" id="gateMsg" role="status"></div>
   </div>
 </div>
 
@@ -644,27 +644,41 @@ heroBtn.addEventListener("click", () => {
   document.getElementById("scan-rescan").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
 });
 
-/* ---------- downloads, then the list ---------- */
-const sheet = document.getElementById("sheet");
-let sheetShown = false;
-function openSheet() {
-  if (sheetShown) return; sheetShown = true;
-  sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false");
-}
+/* ---------- downloads: an email first (once per browser), then the file, and the links in their inbox ---------- */
+const sheet = document.getElementById("sheet"), gateForm = document.getElementById("gateForm"), gateMsg = document.getElementById("gateMsg");
+let pending = null;   // the download link waiting for an email
+const savedEmail = () => { try { return localStorage.getItem("gush_email") || ""; } catch (e) { return ""; } };
+function startDownload(a) { send("download", { plugin: a.dataset.plugin }); location.href = a.href; }
+function openSheet() { sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false"); setTimeout(() => gateForm.email.focus(), 350); }
 function closeSheet() { sheet.classList.remove("open"); sheet.setAttribute("aria-hidden", "true"); }
-document.getElementById("sheetX").addEventListener("click", () => { closeSheet(); send("list_dismiss"); });
+document.getElementById("sheetX").addEventListener("click", () => { closeSheet(); if (pending) send("gate_close", { plugin: pending.dataset.plugin }); pending = null; });
+addEventListener("keydown", e => { if (e.key === "Escape" && sheet.classList.contains("open")) document.getElementById("sheetX").click(); });
 document.querySelectorAll(".dl").forEach(a => a.addEventListener("click", e => {
-  send("download", { plugin: a.dataset.plugin });
+  e.preventDefault();
   if (isPhone) {
-    e.preventDefault();
+    send("download", { plugin: a.dataset.plugin });
     const box = document.getElementById("phone");
     box.scrollIntoView({ behavior: "smooth", block: "center" });
     box.querySelector("input").focus({ preventScroll: true });
     document.getElementById("sendMsg").innerHTML = 'It installs on a Mac. Send it there, or <a href="' + a.href + '">download anyway</a>.';
     return;
   }
-  setTimeout(openSheet, 900);
+  if (savedEmail()) { startDownload(a); return; }   // they gave it already, in this browser
+  pending = a; gateMsg.textContent = "";
+  send("gate_open", { plugin: a.dataset.plugin });
+  openSheet();
 }));
+gateForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const email = gateForm.email.value.trim();
+  if (!emailOk(email)) { gateMsg.textContent = "That email doesn't look right. Check it and try again."; gateForm.email.focus(); return; }
+  try { localStorage.setItem("gush_email", email); } catch (err) {}
+  send("download_email", { email, plugin: pending ? pending.dataset.plugin : "" });
+  gateMsg.textContent = "Downloading. The links and the install steps are in your inbox too.";
+  if (pending) startDownload(pending);
+  pending = null;
+  setTimeout(closeSheet, 2600);
+});
 
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 function emailForm(formId, msgId, type, okText, after) {
@@ -680,7 +694,6 @@ function emailForm(formId, msgId, type, okText, after) {
   });
 }
 emailForm("sendForm", "sendMsg", "send_links", "Sent. Open it on your Mac.");
-emailForm("listForm", "listMsg", "list_join", "You're in. Thank you.", () => setTimeout(closeSheet, 1600));
 
 /* ---------- feedback, one question at a time ---------- */
 const quiz = document.getElementById("quiz"), steps = [...quiz.querySelectorAll(".q")], dots = [...quiz.querySelectorAll(".dots i")];
