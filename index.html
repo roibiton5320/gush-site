@@ -489,14 +489,36 @@ const inInstagram = /Instagram/i.test(navigator.userAgent);
 if (isPhone) document.documentElement.classList.add("is-phone");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// Only the real site counts: a copy opened from disk or a preview server sends nothing.
+const LIVE = /(^|\.)gush\.best$/.test(location.hostname);
+let TZ = ""; try { TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
 function send(type, data = {}) {
-  if (!COLLECT) return Promise.resolve(false);
+  if (!COLLECT || !LIVE) return Promise.resolve(false);
   let ref = ""; try { ref = document.referrer ? new URL(document.referrer).hostname : ""; } catch (e) {}
-  const body = JSON.stringify({ type, sid: SID, vid: VID, me: ME, path: location.pathname + location.hash, ref, phone: isPhone, ig: inInstagram, lang: navigator.language, w: innerWidth, ...data });
+  // the browser's own name and the automation flag let the dashboard tell robots from people
+  const body = JSON.stringify({ type, sid: SID, vid: VID, me: ME, path: location.pathname + location.hash, ref, phone: isPhone, ig: inInstagram, lang: navigator.language, w: innerWidth,
+    ua: navigator.userAgent, wd: navigator.webdriver === true, tz: TZ, ...data });
   return fetch(COLLECT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body }).then(() => true, () => false);
 }
 const qs = new URLSearchParams(location.search);
 send("view", { src: qs.get("utm_source") || qs.get("s") || "" });
+// A person is someone who does something a robot does not: a touch, a click, a key, the wheel, or the
+// mouse moving, once the page has been in front of them for two seconds. Crawlers load and render the
+// page but never do any of these, so a page load alone is never counted as a person.
+(() => {
+  const shownAt = () => document.visibilityState === "visible";
+  let visibleMs = 0, last = performance.now(), sent = false;
+  const tick = () => { const now = performance.now(); if (shownAt()) visibleMs += now - last; last = now; };
+  const evs = ["pointerdown", "pointermove", "touchstart", "wheel", "keydown"];
+  const human = e => {
+    tick();
+    if (sent || visibleMs < 2000 || (e.type === "pointermove" && e.pointerType !== "mouse")) return;
+    sent = true; evs.forEach(t => removeEventListener(t, human, true));
+    send("seen", { src: qs.get("utm_source") || qs.get("s") || "" });
+  };
+  evs.forEach(t => addEventListener(t, human, { capture: true, passive: true }));
+  document.addEventListener("visibilitychange", tick);
+})();
 
 /* ---------- motion. Without JS, or with reduced motion, everything is simply shown ---------- */
 if (!reduced && "IntersectionObserver" in window) {
