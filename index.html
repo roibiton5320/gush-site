@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Gush · free plugins for Mac</title>
-<meta name="description" content="Scan & Rescan and HOLYphantam: free audio plugins for Mac. VST3, AU and standalone. Beta.">
-<meta property="og:title" content="Gush · free plugins for Mac">
+<title>Gush · free plugins for Mac and Windows</title>
+<meta name="description" content="Scan & Rescan and HOLYphantam: free audio plugins for Mac and Windows. VST3, AU and standalone. Beta.">
+<meta property="og:title" content="Gush · free plugins for Mac and Windows">
 <meta property="og:description" content="Scan & Rescan and HOLYphantam. Free beta, VST3 / AU / standalone.">
 <meta property="og:image" content="https://gush.best/assets/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -145,6 +145,11 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .on-bone .sub{color:var(--bone-dim)}
 .band h2.sec{font-size:clamp(36px,6vw,64px)}
 .sub{margin:14px 0 0;max-width:46ch}
+/* the install steps for the visitor's own computer, with a switch to the other one */
+.os-pick{display:inline-flex;gap:4px;margin:22px 0 0;padding:4px;border-radius:999px;box-shadow:inset 0 0 0 1.5px var(--bone-2)}
+.os-pick button{appearance:none;border:0;cursor:pointer;min-height:40px;padding:0 20px;border-radius:999px;background:transparent;color:inherit;font:700 14px/1 var(--wide);font-variation-settings:"wdth" 112;transition:background-color .2s,color .2s}
+.os-pick button[aria-selected="true"]{background:var(--bone);color:var(--ink)}
+.os-pick button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .steps{list-style:none;padding:0;margin:40px 0 0;display:grid;gap:12px;counter-reset:s}
 @media (min-width:900px){.steps{grid-template-columns:repeat(4,1fr)}}
 .steps li{counter-increment:s;padding:22px;border-radius:var(--r);background:var(--bone-2)}
@@ -280,7 +285,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   <section class="hero">
     <div class="wrap">
       <svg class="sun" id="sun" viewBox="-500 -500 1000 1000" aria-hidden="true"><line class="on" x1="0.0" y1="-170.0" x2="0.0" y2="-483.7" pathLength="1" style="--i:0"/><line x1="22.2" y1="-168.5" x2="26.9" y2="-204.6" pathLength="1" style="--i:1"/><line class="on" x1="44.0" y1="-164.2" x2="98.5" y2="-367.5" pathLength="1" style="--i:2"/><line class="on" x1="65.1" y1="-157.1" x2="115.6" y2="-279.1" pathLength="1" style="--i:3"/><line x1="85.0" y1="-147.2" x2="106.3" y2="-184.1" pathLength="1" style="--i:4"/><line x1="103.5" y1="-134.9" x2="127.7" y2="-166.5" pathLength="1" style="--i:5"/><line class="on" x1="120.2" y1="-120.2" x2="294.6" y2="-294.6" pathLength="1" style="--i:6"/><line x1="134.9" y1="-103.5" x2="168.3" y2="-129.1" pathLength="1" style="--i:7"/><line class="on" x1="147.2" y1="-85.0" x2="409.9" y2="-236.7" pathLength="1" style="--i:8"/><line x1="157.1" y1="-65.1" x2="194.9" y2="-80.7" pathLength="1" style="--i:9"/><line class="on" x1="164.2" y1="-44.0" x2="347.3" y2="-93.0" pathLength="1" style="--i:10"/><line class="on" x1="168.5" y1="-22.2" x2="300.2" y2="-39.5" pathLength="1" style="--i:11"/><line x1="170.0" y1="0.0" x2="210.8" y2="0.0" pathLength="1" style="--i:12"/><line class="on" x1="168.5" y1="22.2" x2="383.5" y2="50.5" pathLength="1" style="--i:13"/><line class="on" x1="164.2" y1="44.0" x2="404.7" y2="108.4" pathLength="1" style="--i:14"/><line x1="157.1" y1="65.1" x2="191.8" y2="79.4" pathLength="1" style="--i:15"/><line class="on" x1="147.2" y1="85.0" x2="428.3" y2="247.3" pathLength="1" style="--i:16"/><line x1="134.9" y1="103.5" x2="173.9" y2="133.4" pathLength="1" style="--i:17"/><line class="on" x1="120.2" y1="120.2" x2="267.1" y2="267.1" pathLength="1" style="--i:18"/><line class="on" x1="103.5" y1="134.9" x2="191.0" y2="248.9" pathLength="1" style="--i:19"/><line x1="85.0" y1="147.2" x2="109.8" y2="190.2" pathLength="1" style="--i:20"/><line x1="65.1" y1="157.1" x2="78.4" y2="189.2" pathLength="1" style="--i:21"/><line class="on" x1="44.0" y1="164.2" x2="115.3" y2="430.2" pathLength="1" style="--i:22"/><line x1="22.2" y1="168.5" x2="27.2" y2="206.8" pathLength="1" style="--i:23"/><line class="on" x1="0.0" y1="170.0" x2="0.0" y2="477.2" pathLength="1" style="--i:24"/><line x1="-22.2" y1="168.5" x2="-26.9" y2="204.1" pathLength="1" style="--i:25"/><line class="on" x1="-44.0" y1="164.2" x2="-95.3" y2="355.6" pathLength="1" style="--i:26"/><line class="on" x1="-65.1" y1="157.1" x2="-125.9" y2="303.8" pathLength="1" style="--i:27"/><line x1="-85.0" y1="147.2" x2="-103.4" y2="179.2" pathLength="1" style="--i:28"/><line class="on" x1="-103.5" y1="134.9" x2="-230.1" y2="299.8" pathLength="1" style="--i:29"/><line class="on" x1="-120.2" y1="120.2" x2="-309.4" y2="309.4" pathLength="1" style="--i:30"/><line x1="-134.9" y1="103.5" x2="-166.6" y2="127.8" pathLength="1" style="--i:31"/><line class="on" x1="-147.2" y1="85.0" x2="-425.8" y2="245.9" pathLength="1" style="--i:32"/><line x1="-157.1" y1="65.1" x2="-189.4" y2="78.5" pathLength="1" style="--i:33"/><line class="on" x1="-164.2" y1="44.0" x2="-346.9" y2="93.0" pathLength="1" style="--i:34"/><line class="on" x1="-168.5" y1="22.2" x2="-304.3" y2="40.1" pathLength="1" style="--i:35"/><line x1="-170.0" y1="0.0" x2="-214.9" y2="0.0" pathLength="1" style="--i:36"/><line x1="-168.5" y1="-22.2" x2="-209.0" y2="-27.5" pathLength="1" style="--i:37"/><line class="on" x1="-164.2" y1="-44.0" x2="-411.3" y2="-110.2" pathLength="1" style="--i:38"/><line x1="-157.1" y1="-65.1" x2="-197.1" y2="-81.7" pathLength="1" style="--i:39"/><line class="on" x1="-147.2" y1="-85.0" x2="-422.9" y2="-244.2" pathLength="1" style="--i:40"/><line x1="-134.9" y1="-103.5" x2="-165.6" y2="-127.1" pathLength="1" style="--i:41"/><line class="on" x1="-120.2" y1="-120.2" x2="-272.7" y2="-272.7" pathLength="1" style="--i:42"/><line class="on" x1="-103.5" y1="-134.9" x2="-197.6" y2="-257.6" pathLength="1" style="--i:43"/><line x1="-85.0" y1="-147.2" x2="-104.0" y2="-180.1" pathLength="1" style="--i:44"/><line class="on" x1="-65.1" y1="-157.1" x2="-144.5" y2="-348.9" pathLength="1" style="--i:45"/><line class="on" x1="-44.0" y1="-164.2" x2="-112.2" y2="-418.6" pathLength="1" style="--i:46"/><line x1="-22.2" y1="-168.5" x2="-28.5" y2="-216.1" pathLength="1" style="--i:47"/></svg>
-      <span class="badge"><b>Beta</b> Free · Mac · VST3 · AU · App</span>
+      <span class="badge"><b>Beta</b> Free · Mac &amp; Windows · VST3 · AU · App</span>
       <h1 class="display" id="h1" aria-label="Two plugins. Free.">Two plugins. Free.</h1>
       <script>
       /* split before first paint: every letter rides up inside its word's mask */
@@ -308,7 +313,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 
       <div class="phone" id="phone">
         <h2>You're on your phone</h2>
-        <p>These run on a Mac. Leave your email and we'll send both download links, so they're waiting on your computer.</p>
+        <p>These run on a Mac or a Windows PC. Leave your email and we'll send the download links, so they're waiting on your computer.</p>
         <form class="row" id="sendForm" novalidate>
           <input type="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Your email">
           <button class="btn btn-solid" type="submit">Send</button>
@@ -324,9 +329,9 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
         <span class="kind">Effect · beta</span>
         <h2 class="display" id="sr-h">Scan &amp; Rescan</h2>
         <p>One plugin, two suns. The black sun slices your loop into steps; the white one turns the same steps into clouds of grains. Six planets between them (repeat, reverse, freeze, pitch, echo, shimmer) bend both. Roll the dice until it sounds like you.</p>
-        <ul class="chips"><li>VST3 · AU · Standalone</li><li>Apple Silicon + Intel</li><li>macOS 11+</li></ul>
+        <ul class="chips"><li data-win="VST3 · Standalone">VST3 · AU · Standalone</li><li data-win="Windows 10 and 11, 64-bit">Apple Silicon + Intel</li><li data-win="Any VST3 DAW">macOS 11+</li></ul>
         <div class="p-actions">
-          <a class="btn btn-solid dl" data-plugin="scan" href="https://github.com/roibiton5320/gush-site/releases/download/beta-1/ScanRescan-0.9.0-beta-mac.pkg">
+          <a class="btn btn-solid dl" data-plugin="scan" href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/ScanRescan-0.9.1-beta-mac.pkg" data-win-href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/ScanRescan-0.9.1-beta-windows.exe" data-win-size="8 MB">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
             Download the beta <span class="size">22 MB</span>
           </a>
@@ -348,12 +353,12 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   <section class="band" id="holyphantam" aria-labelledby="hp-h">
     <div class="wrap p-grid">
       <div class="p-text">
-        <span class="kind">Instrument · 1.1.2 beta</span>
+        <span class="kind">Instrument · 1.1.3 beta</span>
         <h2 class="display" id="hp-h">HOLY&shy;phantam</h2>
         <p>A chromatic handpan built from how steel actually rings: no samples. Four layers, a halo, a cosmic space, a shadow underneath, and a player that keeps playing when you stop.</p>
-        <ul class="chips"><li>VST3 · AU · Standalone</li><li>Apple Silicon + Intel</li><li>MIDI instrument</li></ul>
+        <ul class="chips"><li data-win="VST3 · Standalone">VST3 · AU · Standalone</li><li data-win="Windows 10 and 11, 64-bit">Apple Silicon + Intel</li><li>MIDI instrument</li></ul>
         <div class="p-actions">
-          <a class="btn btn-solid dl" data-plugin="holyphantam" href="https://github.com/roibiton5320/gush-site/releases/download/beta-1/HOLYphantam-1.1.2-beta-mac.pkg">
+          <a class="btn btn-solid dl" data-plugin="holyphantam" href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/HOLYphantam-1.1.3-beta-mac.pkg" data-win-href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/HOLYphantam-1.1.3-beta-windows.exe" data-win-size="5 MB">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
             Download HOLYphantam <span class="size">11 MB</span>
           </a>
@@ -375,6 +380,11 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   <section class="band on-ink" id="install" aria-labelledby="in-h">
     <div class="wrap">
       <h2 class="display sec" id="in-h">Installing takes two minutes</h2>
+      <div class="os-pick" role="tablist" aria-label="Your computer">
+        <button type="button" role="tab" id="osMac" aria-selected="true" aria-controls="stepsMac">Mac</button>
+        <button type="button" role="tab" id="osWin" aria-selected="false" aria-controls="stepsWin">Windows</button>
+      </div>
+      <div id="stepsMac" role="tabpanel" aria-labelledby="osMac">
       <p class="sub">We're not in Apple's paid signing program yet, so your Mac asks you to approve the installer once. That's the only extra step.</p>
       <ol class="steps rise">
         <li><b>Open the file</b><span>Double-click the <kbd>.pkg</kbd> you downloaded, in your Downloads folder. Both plugins install the same way.</span></li>
@@ -382,6 +392,16 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
         <li><b>Open Anyway</b><span><kbd>System Settings → Privacy &amp; Security</kbd>, scroll down, press <kbd>Open Anyway</kbd>, enter your password, and run it to the end.</span></li>
         <li><b>Rescan in your DAW</b><span>Ableton: <kbd>Settings → Plug-Ins → Rescan</kbd>. Logic and GarageBand pick up the AU on their own.</span></li>
       </ol>
+      </div>
+      <div id="stepsWin" role="tabpanel" aria-labelledby="osWin" hidden>
+      <p class="sub">We're not in Microsoft's paid signing program yet, so Windows asks you to approve the installer once. That's the only extra step.</p>
+      <ol class="steps">
+        <li><b>Open the file</b><span>Double-click the <kbd>.exe</kbd> you downloaded, in your Downloads folder. Both plugins install the same way.</span></li>
+        <li><b>Run anyway</b><span>Windows says it protected your PC. Press <kbd>More info</kbd>, then <kbd>Run anyway</kbd>.</span></li>
+        <li><b>Install</b><span>Press <kbd>Yes</kbd>, then <kbd>Install</kbd>. The VST3 goes to the shared VST3 folder, where every DAW looks.</span></li>
+        <li><b>Rescan in your DAW</b><span>Ableton: <kbd>Settings → Plug-Ins</kbd>, turn on the VST3 system folder, <kbd>Rescan</kbd>. FL Studio: <kbd>Options → Manage plugins → Find plugins</kbd>.</span></li>
+      </ol>
+      </div>
       <p class="foot-note">Each one also installs a standalone app, so you can try it without a DAW. Stuck? Tell us where in the <a href="#feedback">feedback form</a> and leave your email; we'll write back.</p>
     </div>
   </section>
@@ -455,7 +475,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 <footer>
   <div class="wrap">
     <a class="logo" href="#">GUSH</a>
-    <span>No cookies, no ads, no trackers. An anonymous random number counts visits, plays and downloads, so we know what to build next.</span>
+    <span>No cookies, no ads. An anonymous random number counts visits, plays and downloads, here and on PostHog (never your email, never a recording), so we know what to build next.</span>
   </div>
 </footer>
 
@@ -486,6 +506,7 @@ if (new URLSearchParams(location.search).get("me") === "1") store.set("gush_me",
 const ME = store.get("gush_me") === "1";
 const isPhone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
 const inInstagram = /Instagram/i.test(navigator.userAgent);
+const isWin = !isPhone && /Windows/i.test(navigator.userAgent);
 if (isPhone) document.documentElement.classList.add("is-phone");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -494,6 +515,7 @@ const LIVE = /(^|\.)gush\.best$/.test(location.hostname);
 let TZ = ""; try { TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
 function send(type, data = {}) {
   if (!COLLECT || !LIVE) return Promise.resolve(false);
+  if (type !== "view" && !ME) phCapture(type, data);   // PostHog counts the page view itself
   let ref = ""; try { ref = document.referrer ? new URL(document.referrer).hostname : ""; } catch (e) {}
   // the browser's own name and the automation flag let the dashboard tell robots from people
   const body = JSON.stringify({ type, sid: SID, vid: VID, me: ME, path: location.pathname + location.hash, ref, phone: isPhone, ig: inInstagram, lang: navigator.language, w: innerWidth,
@@ -501,6 +523,23 @@ function send(type, data = {}) {
   return fetch(COLLECT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body }).then(() => true, () => false);
 }
 const qs = new URLSearchParams(location.search);
+/* PostHog: a second, independent count of the same visits, so our own numbers can be checked against
+   theirs. The same anonymous browser id, kept in this browser (no cookies), no recordings, never an email.
+   Only on gush.best, never on Roi's own visits. */
+const PH_KEY = "phc_yxZYKAS3GktbjgTJPeQNx4Wk9oKXC8X4Y9rj69TMusE9";
+let ph = null;
+if (LIVE && !ME) {
+  const sc = document.createElement("script");
+  sc.src = "https://us-assets.i.posthog.com/static/array.js"; sc.async = true;
+  sc.onload = () => {
+    if (!window.posthog || !window.posthog.init) return;
+    window.posthog.init(PH_KEY, { api_host: "https://us.i.posthog.com", persistence: "localStorage", bootstrap: { distinctID: VID },
+      autocapture: false, capture_pageview: true, capture_pageleave: true, disable_session_recording: true, person_profiles: "always" });
+    ph = window.posthog;
+  };
+  document.head.appendChild(sc);
+}
+const phCapture = (type, data) => { if (!ph) return; const { email, ...rest } = data || {}; ph.capture(type, { ...rest, src: qs.get("utm_source") || qs.get("s") || "" }); };
 send("view", { src: qs.get("utm_source") || qs.get("s") || "" });
 // A person is someone who does something a robot does not: a touch, a click, a key, the wheel, or the
 // mouse moving, once the page has been in front of them for two seconds. Crawlers load and render the
@@ -666,11 +705,26 @@ heroBtn.addEventListener("click", () => {
   document.getElementById("scan-rescan").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
 });
 
+/* ---------- Windows: its installers, its chips, its install steps ---------- */
+function showOs(win) {
+  document.getElementById("osMac").setAttribute("aria-selected", !win);
+  document.getElementById("osWin").setAttribute("aria-selected", win);
+  document.getElementById("stepsMac").hidden = win;
+  document.getElementById("stepsWin").hidden = !win;
+}
+document.getElementById("osMac").addEventListener("click", () => showOs(false));
+document.getElementById("osWin").addEventListener("click", () => showOs(true));
+if (isWin) {
+  showOs(true);
+  document.querySelectorAll("[data-win]").forEach(li => { li.textContent = li.dataset.win; });
+  document.querySelectorAll(".dl[data-win-href]").forEach(a => { a.href = a.dataset.winHref; const sz = a.querySelector(".size"); if (sz) sz.textContent = a.dataset.winSize; });
+}
+
 /* ---------- downloads: an email first (once per browser), then the file, and the links in their inbox ---------- */
 const sheet = document.getElementById("sheet"), gateForm = document.getElementById("gateForm"), gateMsg = document.getElementById("gateMsg");
 let pending = null;   // the download link waiting for an email
 const savedEmail = () => { try { return localStorage.getItem("gush_email") || ""; } catch (e) { return ""; } };
-function startDownload(a) { send("download", { plugin: a.dataset.plugin }); location.href = a.href; }
+function startDownload(a) { send("download", { plugin: a.dataset.plugin, side: isWin ? "windows" : "mac" }); location.href = a.href; }
 function openSheet() { sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false"); setTimeout(() => gateForm.email.focus(), 350); }
 function closeSheet() { sheet.classList.remove("open"); sheet.setAttribute("aria-hidden", "true"); }
 document.getElementById("sheetX").addEventListener("click", () => { closeSheet(); if (pending) send("gate_close", { plugin: pending.dataset.plugin }); pending = null; });
@@ -682,7 +736,7 @@ document.querySelectorAll(".dl").forEach(a => a.addEventListener("click", e => {
     const box = document.getElementById("phone");
     box.scrollIntoView({ behavior: "smooth", block: "center" });
     box.querySelector("input").focus({ preventScroll: true });
-    document.getElementById("sendMsg").innerHTML = 'It installs on a Mac. Send it there, or <a href="' + a.href + '">download anyway</a>.';
+    document.getElementById("sendMsg").innerHTML = 'It installs on a computer. Send it there, or <a href="' + a.href + '">download anyway</a>.';
     return;
   }
   if (savedEmail()) { startDownload(a); return; }   // they gave it already, in this browser
@@ -715,7 +769,7 @@ function emailForm(formId, msgId, type, okText, after) {
     f.querySelector("button").disabled = false;
   });
 }
-emailForm("sendForm", "sendMsg", "send_links", "Sent. Open it on your Mac.");
+emailForm("sendForm", "sendMsg", "send_links", "Sent. Open it on your computer.");
 
 /* ---------- feedback, one question at a time ---------- */
 const quiz = document.getElementById("quiz"), steps = [...quiz.querySelectorAll(".q")], dots = [...quiz.querySelectorAll(".dots i")];
