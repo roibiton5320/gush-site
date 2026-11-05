@@ -84,6 +84,7 @@ textarea{height:auto;min-height:96px;padding:14px 16px;resize:vertical}
 input::placeholder,textarea::placeholder{color:currentColor;opacity:.55}
 input:focus,textarea:focus{outline:none;border-color:currentColor}
 .msg{font-size:14px;margin-top:10px;min-height:1.4em}
+.phone .share{width:100%;min-height:48px;margin-top:4px;font-size:15px}
 
 .band{position:relative;padding:clamp(72px,10vw,130px) 0}
 .p-grid{display:grid;gap:clamp(28px,4vw,60px);align-items:center;grid-template-columns:1fr}
@@ -264,7 +265,10 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .motion .split:not(.in) .w > span{transform:translateY(108%) rotate(4deg);filter:blur(5px)}
 
 footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));background:var(--blue);color:var(--blue-dim);font-size:14px}
-footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:baseline}
+footer .maker{color:var(--blue-ink)}
+footer .maker a{color:#fff;text-underline-offset:3px}
+footer .privacy{flex-basis:100%}
 </style>
 </head>
 <body>
@@ -308,7 +312,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 
       <div class="fan" id="fan" aria-hidden="true">
         <figure class="f-sr"><img src="assets/scan-rescan.webp" width="1881" height="871" alt=""></figure>
-        <figure class="f-hp"><img src="assets/holyphantam.webp" width="1600" height="1029" alt=""></figure>
+        <figure class="f-hp"><img src="assets/holyphantam.webp" width="1600" height="1030" alt=""></figure>
       </div>
 
       <div class="phone" id="phone">
@@ -319,6 +323,10 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
           <button class="btn btn-solid" type="submit">Send</button>
         </form>
         <div class="msg" id="sendMsg" role="status"></div>
+        <button class="btn btn-line share" type="button" id="shareLink" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
+          Or send the link to yourself
+        </button>
       </div>
     </div>
   </section>
@@ -367,7 +375,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
       <div>
         <div class="struck" id="struck">
         <svg class="rings" viewBox="-50 -50 100 100" aria-hidden="true"><circle r="49"/><circle r="49"/><circle r="49"/><circle r="49"/></svg>
-        <figure class="shot"><img src="assets/holyphantam.webp" width="1600" height="1029" alt="HOLYphantam's window: four handpan layers across the top, a large handpan with note names, halo, envelope, filter, space and echo controls, and a full piano keyboard." decoding="async"></figure>
+        <figure class="shot"><img src="assets/holyphantam.webp" width="1600" height="1030" alt="HOLYphantam 1.2's window: four handpan layers with level faders across the top, a large handpan with note names, a synth sound page with source, halo, envelope, voicing and LP/BP/HP filter, space and echo controls, and a full piano keyboard." decoding="async"></figure>
         </div>
         <div class="player" id="hpPlayer">
           <div class="player-head"><span class="now" aria-live="polite">Tap a sound to hear it</span></div>
@@ -475,7 +483,8 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 <footer>
   <div class="wrap">
     <a class="logo" href="#">GUSH</a>
-    <span>No cookies, no ads. An anonymous random number counts visits, plays and downloads, here and on PostHog (never your email, never a recording), so we know what to build next.</span>
+    <span class="maker">Made by Roi Biton · <a href="https://instagram.com/roibiton" rel="noopener">Instagram @roibiton</a></span>
+    <span class="privacy">No cookies, no ads. An anonymous random number counts visits, plays and downloads, here and on PostHog (never your email, never a recording), so we know what to build next.</span>
   </div>
 </footer>
 
@@ -769,7 +778,16 @@ function emailForm(formId, msgId, type, okText, after) {
     f.querySelector("button").disabled = false;
   });
 }
-emailForm("sendForm", "sendMsg", "send_links", "Sent. Open it on your computer.");
+emailForm("sendForm", "sendMsg", "send_links", "Sent. Not in your inbox in a minute? Look in Spam, it's from Gush.");
+/* no email needed: the phone's own share sheet sends gush.best to WhatsApp, Notes or yourself */
+const shareBtn = document.getElementById("shareLink");
+if (navigator.share) {
+  shareBtn.hidden = false;
+  shareBtn.addEventListener("click", () => {
+    send("share_link");
+    navigator.share({ title: "Gush", text: "Two free plugins to open on my computer", url: "https://gush.best" }).catch(() => {});
+  });
+}
 
 /* ---------- feedback, one question at a time ---------- */
 const quiz = document.getElementById("quiz"), steps = [...quiz.querySelectorAll(".q")], dots = [...quiz.querySelectorAll(".dots i")];
