@@ -266,8 +266,8 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 
 footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));background:var(--blue);color:var(--blue-dim);font-size:14px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:baseline}
-footer .maker{color:var(--blue-ink)}
-footer .maker a{color:#fff;text-underline-offset:3px}
+footer .maker{color:var(--blue-dim);font-size:13px;text-decoration:none}
+footer .maker:hover{color:var(--blue-ink)}
 footer .privacy{flex-basis:100%}
 </style>
 </head>
@@ -483,7 +483,7 @@ footer .privacy{flex-basis:100%}
 <footer>
   <div class="wrap">
     <a class="logo" href="#">GUSH</a>
-    <span class="maker">Made by Roi Biton · <a href="https://instagram.com/roibiton" rel="noopener">Instagram @roibiton</a></span>
+    <a class="maker" href="https://instagram.com/roibiton" rel="noopener">Instagram</a>
     <span class="privacy">No cookies, no ads. An anonymous random number counts visits, plays and downloads, here and on PostHog (never your email, never a recording), so we know what to build next.</span>
   </div>
 </footer>
