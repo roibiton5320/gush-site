@@ -95,6 +95,12 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;padding:0;list-style:none}
 .chips li{font-size:13px;padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px currentColor}
 .p-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;align-items:center}
+/* Play it live: the plugin's real engine in a full-screen layer, in the plugin's own colours */
+.live{position:fixed;inset:0;z-index:60;background:#F1E7D6;opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
+.live.open{opacity:1;visibility:visible;transition:opacity .3s}
+.live iframe{width:100%;height:100%;border:0;display:block}
+body.live-on{overflow:hidden}
+@media (prefers-reduced-motion:reduce){.live,.live.open{transition:none}}
 .note{font-size:14px;margin:14px 0 0;max-width:44ch;color:var(--ink-dim)}
 .shot{margin:0;border-radius:clamp(12px,1.6vw,20px);overflow:hidden;box-shadow:0 50px 100px -40px rgba(0,0,0,.6)}
 
@@ -373,6 +379,7 @@ footer .privacy{flex-basis:100%}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
             Download HOLYphantam <span class="size">11 MB</span>
           </a>
+          <button class="btn btn-line" type="button" id="hpLive" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play it live</button>
         </div>
       </div>
       <div>
@@ -740,6 +747,39 @@ if (isWin) {
   document.querySelectorAll(".dl[data-win-href]").forEach(a => { a.href = a.dataset.winHref; const sz = a.querySelector(".size"); if (sz) sz.textContent = a.dataset.winSize; });
 }
 
+/* ---------- Play it live: the real engine, full screen. Every step is counted, so we see who plays before downloading ---------- */
+let liveBox = null, liveFrame = null, liveFrom = null;   // the layer sits at the end of the page, after this script
+function openLive(plugin) {
+  liveBox = liveBox || document.getElementById("live");
+  liveFrom = document.activeElement;
+  if (!liveFrame) {
+    liveFrame = document.createElement("iframe");
+    liveFrame.src = "live/" + plugin + "/";
+    liveFrame.allow = "autoplay";
+    liveFrame.title = "HOLYphantam, playable";
+    liveBox.appendChild(liveFrame);
+  }
+  liveBox.classList.add("open");
+  document.body.classList.add("live-on");
+  liveFrame.addEventListener("load", () => liveFrame && liveFrame.focus(), { once: true });
+  send("live_open", { plugin });
+}
+function closeLive() {
+  liveBox.classList.remove("open");
+  document.body.classList.remove("live-on");
+  setTimeout(() => { if (!liveBox.classList.contains("open") && liveFrame) { liveFrame.remove(); liveFrame = null; } }, 350);   // removing it stops the sound
+  if (liveFrom) liveFrom.focus();
+}
+document.getElementById("hpLive").addEventListener("click", () => openLive("holyphantam"));
+addEventListener("message", e => {
+  if (e.origin !== location.origin || !e.data || !e.data.gushLive) return;
+  const t = e.data.gushLive;
+  if (t === "close") { closeLive(); send("live_close", { plugin: "holyphantam" }); }
+  else if (t === "download") { closeLive(); send("live_download", { plugin: "holyphantam" }); document.querySelector('.dl[data-plugin="holyphantam"]').click(); }
+  else send("live_" + t, { plugin: "holyphantam", side: e.data.name || "" });
+});
+addEventListener("keydown", e => { if (e.key === "Escape" && liveBox && liveBox.classList.contains("open")) closeLive(); });
+
 /* ---------- downloads: an email first (once per browser), then the file, and the links in their inbox ---------- */
 const sheet = document.getElementById("sheet"), gateForm = document.getElementById("gateForm"), gateMsg = document.getElementById("gateMsg");
 let pending = null;   // the download link waiting for an email
@@ -835,5 +875,6 @@ quiz.addEventListener("submit", async e => {
   if (ok) go(steps.length - 1); else msg.innerHTML = 'Couldn\'t send right now. Please try again in a minute.';
 });
 </script>
+<div class="live" id="live" role="dialog" aria-modal="true" aria-label="HOLYphantam, playable in the browser"></div>
 </body>
 </html>
