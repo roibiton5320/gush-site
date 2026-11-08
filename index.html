@@ -192,6 +192,9 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .on-ink input:focus,.on-ink textarea:focus{border-color:var(--ink-dim)}
 .on-bone .quiz{color:var(--ink-text)}
 .on-ink .steps li{background:var(--ink-2)}
+/* the install clip: the four steps acted out, above the same four steps in words */
+.howto{margin:32px 0 0;width:min(100%,460px);aspect-ratio:1;border-radius:var(--r);overflow:hidden;background:var(--ink);box-shadow:0 0 0 1px var(--ink-line),0 40px 80px -40px rgba(0,0,0,.6)}
+.howto video{width:100%;height:100%;display:block}
 .on-ink .steps span{color:var(--ink-dim)}
 .on-ink .steps kbd{color:var(--ink-text)}
 .on-ink .steps li::before{background:var(--bone);color:var(--ink)}
@@ -339,7 +342,7 @@ footer .privacy{flex-basis:100%}
         <p>One plugin, two suns. The black sun slices your loop into steps; the white one turns the same steps into clouds of grains. Six planets between them (repeat, reverse, freeze, pitch, echo, shimmer) bend both. Roll the dice until it sounds like you.</p>
         <ul class="chips"><li data-win="VST3 · Standalone">VST3 · AU · Standalone</li><li data-win="Windows 10 and 11, 64-bit">Apple Silicon + Intel</li><li data-win="Any VST3 DAW">macOS 11+</li></ul>
         <div class="p-actions">
-          <a class="btn btn-solid dl" data-plugin="scan" href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/ScanRescan-0.9.1-beta-mac.pkg" data-win-href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/ScanRescan-0.9.1-beta-windows.exe" data-win-size="8 MB">
+          <a class="btn btn-solid dl" data-plugin="scan" href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/ScanRescan-0.9.2-beta-mac.pkg" data-win-href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/ScanRescan-0.9.2-beta-windows.exe" data-win-size="8 MB">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
             Download the beta <span class="size">22 MB</span>
           </a>
@@ -366,7 +369,7 @@ footer .privacy{flex-basis:100%}
         <p>A chromatic handpan built from how steel actually rings: no samples. Play it as a synth, with mono and legato glide, three filter types and drive, or let its player keep playing when you stop. Four layers, 21 instruments from steel to bronze, glass and wood, a halo and a cosmic space.</p>
         <ul class="chips"><li data-win="VST3 · Standalone">VST3 · AU · Standalone</li><li data-win="Windows 10 and 11, 64-bit">Apple Silicon + Intel</li><li>MIDI instrument</li></ul>
         <div class="p-actions">
-          <a class="btn btn-solid dl" data-plugin="holyphantam" href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/HOLYphantam-1.2.0-beta-mac.pkg" data-win-href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/HOLYphantam-1.2.0-beta-windows.exe" data-win-size="5 MB">
+          <a class="btn btn-solid dl" data-plugin="holyphantam" href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/HOLYphantam-1.2.1-beta-mac.pkg" data-win-href="https://github.com/roibiton5320/gush-site/releases/download/beta-2/HOLYphantam-1.2.1-beta-windows.exe" data-win-size="5 MB">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
             Download HOLYphantam <span class="size">11 MB</span>
           </a>
@@ -394,6 +397,7 @@ footer .privacy{flex-basis:100%}
       </div>
       <div id="stepsMac" role="tabpanel" aria-labelledby="osMac">
       <p class="sub">We're not in Apple's paid signing program yet, so your Mac asks you to approve the installer once. That's the only extra step.</p>
+      <figure class="howto"><video src="assets/install-mac.mp4" poster="assets/install-mac.jpg" muted loop playsinline preload="none" aria-label="A 31-second clip of the four Mac steps: open the file, press Done, Open Anyway in Privacy &amp; Security, rescan in your DAW"></video></figure>
       <ol class="steps rise">
         <li><b>Open the file</b><span>Double-click the <kbd>.pkg</kbd> you downloaded, in your Downloads folder. Both plugins install the same way.</span></li>
         <li><b>Press Done</b><span>Your Mac says it can't check the file. Press <kbd>Done</kbd>, not Move to Trash.</span></li>
@@ -403,6 +407,7 @@ footer .privacy{flex-basis:100%}
       </div>
       <div id="stepsWin" role="tabpanel" aria-labelledby="osWin" hidden>
       <p class="sub">We're not in Microsoft's paid signing program yet, so Windows asks you to approve the installer once. That's the only extra step.</p>
+      <figure class="howto"><video src="assets/install-win.mp4" poster="assets/install-win.jpg" muted loop playsinline preload="none" aria-label="A 31-second clip of the four Windows steps: open the file, More info then Run anyway, Yes then Install, rescan in your DAW"></video></figure>
       <ol class="steps">
         <li><b>Open the file</b><span>Double-click the <kbd>.exe</kbd> you downloaded, in your Downloads folder. Both plugins install the same way.</span></li>
         <li><b>Run anyway</b><span>Windows says it protected your PC. Press <kbd>More info</kbd>, then <kbd>Run anyway</kbd>.</span></li>
@@ -723,6 +728,12 @@ function showOs(win) {
 }
 document.getElementById("osMac").addEventListener("click", () => showOs(false));
 document.getElementById("osWin").addEventListener("click", () => showOs(true));
+/* the install clips play while half of one is on screen and stop when it leaves (a hidden tab counts as gone).
+   With reduced motion they stay still, with controls, and play only when asked. */
+document.querySelectorAll(".howto video").forEach(v => {
+  if (reduced || !("IntersectionObserver" in window)) { v.controls = true; return; }
+  new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) v.play().catch(() => { v.controls = true; }); else v.pause(); }), { threshold: .5 }).observe(v);
+});
 if (isWin) {
   showOs(true);
   document.querySelectorAll("[data-win]").forEach(li => { li.textContent = li.dataset.win; });
