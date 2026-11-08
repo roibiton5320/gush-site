@@ -191,6 +191,7 @@ function light(note, v = .85) {
 let struck = 0;
 async function strike(note, byHand) {
   if (!node) await start();
+  wake();
   tell({ pad: note, v: .82 });
   light(note);
   if (byHand && ++struck === 1) say("strike", {});
@@ -271,11 +272,15 @@ function setPlaying(on) {
 }
 $("play").onclick = async () => {
   if (!node) await start();
+  wake();
   wantPlay = !playing;
   setPlaying(wantPlay);
   if (wantPlay) say("player", {});
 };
 $("close").onclick = () => { wantPlay = false; setPlaying(false); if (ctx) ctx.suspend(); parent !== window ? say("close", {}) : history.back(); };
+
+// a phone call, a locked screen or a browser that started us without a tap leaves the sound paused: every touch wakes it
+function wake() { if (ctx && ctx.state !== "running") ctx.resume(); }
 
 // ---------- the engine: the plugin's own DSP, compiled to WebAssembly, in an AudioWorklet ----------
 let starting = null;
