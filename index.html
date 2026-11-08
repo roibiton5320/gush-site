@@ -99,6 +99,7 @@ input:focus,textarea:focus{outline:none;border-color:currentColor}
 .live{position:fixed;inset:0;z-index:60;background:#F1E7D6;opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
 .live.open{opacity:1;visibility:visible;transition:opacity .3s}
 .live iframe{width:100%;height:100%;border:0;display:block}
+.live[data-plugin="scan"]{background:#151517}
 body.live-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.live,.live.open{transition:none}}
 .note{font-size:14px;margin:14px 0 0;max-width:44ch;color:var(--ink-dim)}
@@ -352,6 +353,7 @@ footer .privacy{flex-basis:100%}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
             Download the beta <span class="size">22 MB</span>
           </a>
+          <button class="btn btn-line" type="button" id="srLive" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play it live</button>
         </div>
       </div>
       <div>
@@ -748,15 +750,18 @@ if (isWin) {
 }
 
 /* ---------- Play it live: the real engine, full screen. Every step is counted, so we see who plays before downloading ---------- */
-let liveBox = null, liveFrame = null, liveFrom = null;   // the layer sits at the end of the page, after this script
+let liveBox = null, liveFrame = null, liveFrom = null, livePlugin = "";   // the layer sits at the end of the page, after this script
 function openLive(plugin) {
   liveBox = liveBox || document.getElementById("live");
   liveFrom = document.activeElement;
+  if (liveFrame && livePlugin !== plugin) { liveFrame.remove(); liveFrame = null; }
+  livePlugin = plugin;
+  liveBox.dataset.plugin = plugin;
   if (!liveFrame) {
     liveFrame = document.createElement("iframe");
-    liveFrame.src = "live/" + plugin + "/";
+    liveFrame.src = "live/" + (plugin === "scan" ? "scan-rescan" : plugin) + "/";
     liveFrame.allow = "autoplay";
-    liveFrame.title = "HOLYphantam, playable";
+    liveFrame.title = (plugin === "scan" ? "Scan & Rescan" : "HOLYphantam") + ", playable";
     liveBox.appendChild(liveFrame);
   }
   liveBox.classList.add("open");
@@ -771,12 +776,14 @@ function closeLive() {
   if (liveFrom) liveFrom.focus();
 }
 document.getElementById("hpLive").addEventListener("click", () => openLive("holyphantam"));
+document.getElementById("srLive").addEventListener("click", () => openLive("scan"));
 addEventListener("message", e => {
   if (e.origin !== location.origin || !e.data || !e.data.gushLive) return;
   const t = e.data.gushLive;
-  if (t === "close") { closeLive(); send("live_close", { plugin: "holyphantam" }); }
-  else if (t === "download") { closeLive(); send("live_download", { plugin: "holyphantam" }); document.querySelector('.dl[data-plugin="holyphantam"]').click(); }
-  else send("live_" + t, { plugin: "holyphantam", side: e.data.name || "" });
+  const plugin = livePlugin;
+  if (t === "close") { closeLive(); send("live_close", { plugin }); }
+  else if (t === "download") { closeLive(); send("live_download", { plugin }); document.querySelector('.dl[data-plugin="' + plugin + '"]').click(); }
+  else send("live_" + t, { plugin, side: e.data.name || "" });
 });
 addEventListener("keydown", e => { if (e.key === "Escape" && liveBox && liveBox.classList.contains("open")) closeLive(); });
 
@@ -875,6 +882,6 @@ quiz.addEventListener("submit", async e => {
   if (ok) go(steps.length - 1); else msg.innerHTML = 'Couldn\'t send right now. Please try again in a minute.';
 });
 </script>
-<div class="live" id="live" role="dialog" aria-modal="true" aria-label="HOLYphantam, playable in the browser"></div>
+<div class="live" id="live" role="dialog" aria-modal="true" aria-label="Playable in the browser"></div>
 </body>
 </html>
