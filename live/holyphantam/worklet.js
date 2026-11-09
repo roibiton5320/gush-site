@@ -1,65 +1,57 @@
-// HOLYphantam's own engine (Source/DSP compiled to WebAssembly, see ../holyphantam-wasm) inside an AudioWorklet.
-// In:  {pad, v} {padoff} (the hands, on the shown layer)  {param, value}  {preset}  {play}
-// Out: {ready, presets}  {sound: {scale, scaleName, params}} after every preset  {strikes: [notes]}
+// AudioWorkletProcessor for the HOLYphantam wasm engine.
+// In:  {set:[idx,v]} {setAll:[[idx,v],..]} {preset:i} {play:bool} {note:[n,v]} {noteoff:n} {pad:[layer,n,v]} {padoff:[layer,n]}
+// Out: {ready:true,legacy} {params:[...]} after a preset load, and ~30 times a second {strikes:[[note,layer],..]} {levels:[4]}
 class PhantamProcessor extends AudioWorkletProcessor {
   constructor(opts) {
     super();
-    this.ready = false;
-    this.frames = 0;
-    const imports = {
-      env: { emscripten_notify_memory_growth: () => {} },
-      wasi_snapshot_preview1: new Proxy({}, { get: () => () => 0 }),
-    };
+    this.ready = false; this.strikes = []; this.frames = 0; this.every = Math.round(sampleRate / 30);
+    const imports = { env: { emscripten_notify_memory_growth: () => {} } };
     WebAssembly.instantiate(opts.processorOptions.wasm, imports).then(({ instance }) => {
       const x = this.x = instance.exports;
       if (x._initialize) x._initialize();
       x.phantam_create(sampleRate);
-      this.pL = x.malloc(128 * 4);
-      this.pR = x.malloc(128 * 4);
-      this.buf = x.malloc(512);
+      this.legacy = !x.phantam_param_set;      // an engine without the parameter API: hands, presets and play only
+      this.pL = x.malloc(128 * 4); this.pR = x.malloc(128 * 4);
+      this.pNotes = x.malloc(64 * 4); this.pLayers = x.malloc(64 * 4);
       this.ready = true;
-      const presets = [];
-      for (let i = 0, n = x.phantam_preset_count(); i < n; i++) { x.phantam_preset_name(i, this.buf, 64); presets.push(this.text()); }
-      this.port.postMessage({ ready: true, presets });
+      this.port.postMessage({ ready: true, legacy: this.legacy });
     }).catch(e => this.port.postMessage({ error: String(e) }));
-    this.port.onmessage = e => {
+    this.port.onmessage = (e) => {
       if (!this.ready) return;
       const m = e.data, x = this.x;
-      if (m.pad !== undefined) x.phantam_pad_on(m.pad, m.v ?? 0.8);
-      else if (m.padoff !== undefined) x.phantam_pad_off(m.padoff);
-      else if (m.param !== undefined) x.phantam_set_param(m.param, m.value);
-      else if (m.preset !== undefined) { x.phantam_load_preset(m.preset); this.port.postMessage({ sound: this.sound() }); }
+      if (m.set && !this.legacy) x.phantam_param_set(m.set[0], m.set[1]);
+      else if (m.setAll && !this.legacy) for (const [i, v] of m.setAll) x.phantam_param_set(i, v);
+      else if (m.preset !== undefined) {
+        x.phantam_load_preset(m.preset);
+        if (!this.legacy) { const n = x.phantam_param_count(), a = []; for (let i = 0; i < n; i++) a.push(x.phantam_param_get(i)); this.port.postMessage({ params: a }); }
+      }
       else if (m.play !== undefined) x.phantam_play(m.play ? 1 : 0);
+      else if (m.note) x.phantam_note_on(m.note[0], m.note[1]);
+      else if (m.noteoff !== undefined) x.phantam_note_off(m.noteoff);
+      else if (m.pad) { if (this.legacy) x.phantam_pad_on(m.pad[1], m.pad[2]); else x.phantam_pad_on_layer(m.pad[0], m.pad[1], m.pad[2]); }
+      else if (m.padoff) { if (this.legacy) x.phantam_pad_off(m.padoff[1]); else x.phantam_pad_off_layer(m.padoff[0], m.padoff[1]); }
     };
-  }
-  text() {
-    const b = new Uint8Array(this.x.memory.buffer, this.buf, 64);
-    let s = "";
-    for (let i = 0; i < 64 && b[i]; i++) s += String.fromCharCode(b[i]);
-    return s;
-  }
-  sound() {
-    const x = this.x;
-    const n = x.phantam_scale_notes(this.buf, 32);
-    const scale = Array.from(new Int32Array(x.memory.buffer, this.buf, n));
-    x.phantam_scale_name(this.buf, 64);
-    return { scale, scaleName: this.text(), params: [0, 1, 2, 3, 4, 5].map(i => x.phantam_get_param(i)) };
   }
   process(inputs, outputs) {
     const out = outputs[0];
     if (!this.ready) return true;
-    const n = out[0].length, x = this.x;
+    const x = this.x, n = out[0].length;
     x.phantam_process(this.pL, this.pR, n);
-    const mem = x.memory.buffer;
-    out[0].set(new Float32Array(mem, this.pL, n));
-    if (out[1]) out[1].set(new Float32Array(mem, this.pR, n));
-    // every struck note (player or hands) lights its field, checked about every 20 ms
-    if ((this.frames += n) >= 1024) {
+    const buf = x.memory.buffer;
+    out[0].set(new Float32Array(buf, this.pL, n));
+    if (out[1]) out[1].set(new Float32Array(buf, this.pR, n));
+    const k = x.phantam_poll_strikes_ex(this.pNotes, this.pLayers, 64);
+    if (k) {
+      const nn = new Int32Array(x.memory.buffer, this.pNotes, k), ll = new Int32Array(x.memory.buffer, this.pLayers, k);
+      for (let i = 0; i < k; i++) this.strikes.push([nn[i], ll[i]]);
+    }
+    this.frames += n;
+    if (this.frames >= this.every) {
       this.frames = 0;
-      const k = x.phantam_poll_strikes(this.buf, 32);
-      if (k > 0) this.port.postMessage({ strikes: Array.from(new Int32Array(x.memory.buffer, this.buf, k)) });
+      if (this.strikes.length) { this.port.postMessage({ strikes: this.strikes.slice(0, 64) }); this.strikes = []; }
+      if (!this.legacy) this.port.postMessage({ levels: [0, 1, 2, 3].map(l => x.phantam_layer_level(l)) });
     }
     return true;
   }
 }
-registerProcessor("phantam", PhantamProcessor);
+registerProcessor('phantam', PhantamProcessor);

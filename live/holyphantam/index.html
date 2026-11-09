@@ -2,320 +2,102 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<link rel="icon" href="data:,">
 <title>HOLYphantam live</title>
 <style>
-:root{
-  /* HOLYphantam's own theme (Source/UI/Theme.h) */
-  --ground:#E4D8C4; --paper:#F1E7D6; --panel:#F7EFE2; --ink:#2E2720; --muted:#8A7C68; --line:#DDCFB9;
-  --copper:#B2622F; --muted-text:#6B5E4C; --copper-soft:#EED3B8; --steel:#5F574D; --glow:#E0884A;
-  --display:Didot,"Bodoni 72",Georgia,"Times New Roman",serif;
-  --body:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
-  color-scheme:light;
-}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{background:var(--paper);color:var(--ink);font:400 15px/1.45 var(--body);-webkit-font-smoothing:antialiased;overflow:hidden;
-  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-::selection{background:var(--copper-soft)}
-button{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--copper);outline-offset:3px;border-radius:8px}
-
-.app{height:100%;display:grid;grid-template-rows:auto 1fr auto auto;padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px,env(safe-area-inset-left))}
-
-/* top bar: the plugin's own header, cut down */
-.bar{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
-.name{font:400 30px/1 var(--display);letter-spacing:.01em;white-space:nowrap}
-.name sup{font:600 11px/1 var(--body);color:var(--copper);margin-left:4px;vertical-align:14px}
-.preset{display:flex;align-items:center;gap:4px;margin-left:auto;min-width:0}
-.preset b{font:400 19px/1.1 var(--display);min-width:9ch;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.arrow{appearance:none;border:0;background:none;cursor:pointer;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--muted-text)}
-.arrow:hover{background:var(--panel);color:var(--ink)}
-.arrow svg{width:16px;height:16px}
-.play{appearance:none;border:0;cursor:pointer;height:40px;padding:0 20px;border-radius:999px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line);font-weight:600;font-size:14px;white-space:nowrap;transition:background-color .2s,color .2s}
-.play:disabled{opacity:.45;cursor:default}
-.play[aria-pressed="true"]{background:var(--copper);color:#fff;box-shadow:none}
-.close{appearance:none;border:0;background:none;cursor:pointer;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--muted-text)}
-.close:hover{background:var(--panel);color:var(--ink)}
-.close svg{width:18px;height:18px}
-@media (max-width:640px){
-  .bar{flex-wrap:wrap;gap:6px 4px}
-  .name{font-size:23px}
-  .play{order:2;margin-left:auto;padding:0 16px}
-  .close{order:3;width:36px}
-  .preset{order:4;flex:1 0 100%;margin-left:0;justify-content:space-between}
-  .preset .arrow{flex:none;width:44px;height:44px}
-  .preset b{flex:1 1 auto;min-width:0;font-size:18px}
-}
-
-/* the handpan */
-.stage{position:relative;display:grid;place-items:center;min-height:0;padding:12px 0}
-.pan{width:min(88vw,62vh,620px);aspect-ratio:1;touch-action:none;overflow:visible}
-.pan .field{cursor:pointer}
-.pan text{font:600 11px var(--body);fill:rgba(255,246,232,.82);pointer-events:none;letter-spacing:.04em}
-.pan .ding text{fill:rgba(36,22,12,.85)}
-.hint{position:absolute;left:0;right:0;bottom:6px;text-align:center;color:var(--muted-text);font-size:13px;transition:opacity .4s}
-.gate{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-.gate span{background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:999px;font-weight:600;font-size:15px;box-shadow:0 12px 30px -10px rgba(46,39,32,.5);transition:opacity .35s,transform .35s}
-.gate.gone span{opacity:0;transform:translateY(8px)}
-
-/* macro knobs, as on the plugin's master strip */
-.knobs{display:flex;justify-content:center;gap:clamp(14px,4vw,40px);padding:10px 0 14px;border-top:1px solid var(--line)}
-.knob{display:grid;justify-items:center;gap:4px;width:72px;cursor:ns-resize;touch-action:none}
-.knob svg{width:52px;height:52px}
-.knob .v{font:600 12px var(--body);font-variant-numeric:tabular-nums}
-.knob .l{font:700 10px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted-text)}
-.knob:focus-visible{outline-offset:2px}
-
-/* the way out: this is a taste, the plugin is the meal */
-.foot{display:flex;align-items:center;gap:16px;padding:12px 0 16px;border-top:1px solid var(--line)}
-.foot p{margin:0;color:var(--muted-text);font-size:13px;max-width:62ch}
-.foot p b{color:var(--ink);font-weight:600}
-.dl{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;background:var(--ink);color:var(--paper);text-decoration:none;font-weight:600;font-size:14px}
-.dl:hover{background:#000}
-.dl svg{width:16px;height:16px}
-@media (max-width:640px){.foot{flex-direction:column;align-items:stretch;gap:10px}.dl{margin:0;justify-content:center}.knob{width:60px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:root{--ground:#E4D8C4;--paper:#F1E7D6;--panel:#F7EFE2;--ink:#2E2720;--muted:#8A7C68;--line:#DDCFB9;--copper:#B2622F;--copperSoft:#EED3B8;--steel:#5F574D;--glow:#E0884A;--keyWhite:#FBF4E8;
+ --k:.86;--kd:.80;--km:.78;
+ --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+ --disp:Didot,"Bodoni 72",Georgia,"Times New Roman",serif;
+ --mono:"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--ground);overscroll-behavior:none;touch-action:none}
+body{font-family:var(--sans);color:var(--ink);-webkit-user-select:none;user-select:none;cursor:default}
+#win{position:absolute;left:0;top:0;width:1180px;height:760px;transform-origin:0 0;background:var(--paper);overflow:hidden;visibility:hidden}
+.a{position:absolute}
+.nowrap{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cap{font-weight:700;text-transform:uppercase;letter-spacing:.16em;font-size:calc(9.5px*var(--k));line-height:1;white-space:nowrap}
+.fl{display:flex;align-items:center}
+.line{background:var(--line)}
+/* buttons */
+.tb{display:flex;align-items:center;justify-content:center;background:var(--panel);border:1px solid var(--line);border-radius:3px;font-size:calc(11.5px*var(--k));color:var(--ink);cursor:pointer;white-space:nowrap}
+.tb:hover{border-color:var(--muted)}
+.tb.on{background:var(--ink);color:var(--panel);border-color:transparent}
+.tb.acc.on{background:var(--copper)}
+.tb.pill{border-radius:99px}
+.tb.caps{font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:calc(9.5px*var(--k))}
+.ibtn{display:flex;align-items:center;justify-content:center;border-radius:3px;border:1px solid transparent;color:var(--steel);cursor:pointer;gap:5px;padding:0 3px}
+.ibtn:hover{background:var(--panel);border-color:var(--line);color:var(--copper)}
+.ibtn:active{background:var(--copperSoft)}
+.ibtn.dis{color:var(--line);pointer-events:none}
+.ibtn.on{background:var(--copper);color:var(--panel)}
+.ibtn .ic{flex:0 0 auto;overflow:visible}
+.ibtn span{font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:calc(9.5px*var(--k));color:var(--ink)}
+.ibtn.on span{color:var(--panel)}
+.ic{display:block}
+/* knob */
+.knob{cursor:ns-resize;touch-action:none}
+.knob .v{position:absolute;left:0;right:0;text-align:center;font-family:var(--mono);color:var(--ink);white-space:nowrap;line-height:12px}
+.knob .l{position:absolute;left:0;right:0;text-align:center;color:var(--muted);white-space:nowrap;line-height:14px}
+.knob.accent .l{color:var(--copper);font-weight:700}
+.knob svg{position:absolute;overflow:visible}
+/* combos */
+.combo{background:var(--panel);border:1px solid var(--line);border-radius:3px;display:flex;align-items:center;padding-left:6px;font-size:calc(11.5px*var(--k));cursor:pointer;position:absolute}
+.combo:hover{border-color:var(--muted)}
+.combo i{position:absolute;right:8px;top:50%;margin-top:-1px;border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-top:4px solid var(--muted)}
+.menu{position:absolute;z-index:50;background:var(--paper);border:1px solid var(--line);padding:7px;display:grid;grid-auto-flow:column;column-gap:4px;box-shadow:0 6px 22px rgba(46,39,32,.18)}
+.menu .col{display:flex;flex-direction:column;min-width:0}
+.menu .it{height:24px;display:flex;align-items:center;padding:0 12px 0 22px;border-radius:3px;font-size:calc(12.5px*var(--k));white-space:nowrap;cursor:pointer;position:relative}
+.menu.disp .it{height:28px;font-size:calc(16px*var(--kd));font-family:var(--disp)}
+.menu .it:hover{background:var(--copperSoft)}
+.menu .it.sel{color:var(--copper)}
+.menu .it.sel:before{content:"";position:absolute;left:8px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--copper)}
+.menu .it.dis{color:var(--muted);pointer-events:none;font-size:calc(11px*var(--k))}
+.menu .hd{height:22px;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--copper);font-weight:700;text-transform:uppercase;letter-spacing:.16em;font-size:calc(9px*var(--k))}
+.menu .hd:after{content:"";flex:1;height:1px;background:var(--line)}
+.menu .sep{height:1px;background:var(--line);margin:5px 12px}
+/* stage / tabs */
+.tab .roll,.tab .ibtn{position:absolute}
+.fader{cursor:ns-resize}
+.mark{position:absolute;pointer-events:none}
+#help{position:absolute;left:20px;top:644px;width:1140px;height:16px;font-size:calc(11px*var(--k));line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+#help.h{color:var(--ink)}
+.gal{position:absolute;inset:0;background:rgba(46,39,32,.35);z-index:40}
+.gal .box{position:absolute;left:20px;top:30px;width:1140px;height:700px;background:var(--paper);border:1px solid var(--line);border-radius:6px}
+.gal .card{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:4px;cursor:pointer;padding:10px 12px}
+.gal .card.cur{border:2px solid var(--copper);padding:9px 11px}
+.gal .card:hover{border-color:var(--muted)}
+.gal .card.cur:hover{border-color:var(--copper)}
+/* page chrome */
+#x{position:fixed;top:6px;right:6px;width:28px;height:28px;border:0;border-radius:50%;background:transparent;color:var(--steel);font-size:22px;line-height:26px;text-align:center;cursor:pointer;display:none;z-index:60;font-family:var(--sans)}
+#x:hover{background:var(--panel);color:var(--copper)}
+#dl{position:fixed;right:12px;bottom:6px;height:22px;display:flex;align-items:center;padding:0 12px;border-radius:99px;background:var(--copper);color:var(--panel);text-decoration:none;font-size:12px;font-weight:600;z-index:60;white-space:nowrap}
+#dl:hover{background:var(--ink)}
+#hint{position:fixed;left:14px;bottom:6px;height:22px;display:flex;align-items:center;font-size:11px;color:var(--muted);z-index:60;pointer-events:none;transition:opacity .4s}
+#turn{position:fixed;inset:0;background:var(--ground);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px}
+#turn .ph{width:64px;height:38px;border:2px solid var(--ink);border-radius:7px;position:relative;animation:rot 2.4s ease-in-out infinite}
+#turn .ph:after{content:"";position:absolute;right:4px;top:50%;width:3px;height:10px;margin-top:-5px;background:var(--ink);border-radius:2px}
+@keyframes rot{0%,20%{transform:rotate(90deg)}60%,100%{transform:rotate(0)}}
+#turn h1{font-family:var(--disp);font-weight:400;font-size:28px}
+#turn p{color:var(--muted);font-size:14px;max-width:280px}
+#turn button{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:9px 18px;border-radius:99px;font-size:13px;font-family:var(--sans)}
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="bar">
-    <span class="name">HOLYphantam<sup>1.2</sup></span>
-    <div class="preset" role="group" aria-label="Sound">
-      <button class="arrow" type="button" id="prev" aria-label="Previous sound"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m10 3-5 5 5 5"/></svg></button>
-      <b id="pname" aria-live="polite">First Light</b>
-      <button class="arrow" type="button" id="next" aria-label="Next sound"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 3 5 5-5 5"/></svg></button>
-    </div>
-    <button class="play" type="button" id="play" aria-pressed="false">Play</button>
-    <button class="close" type="button" id="close" aria-label="Close"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l10 10M14 4 4 14"/></svg></button>
-  </header>
-
-  <div class="stage">
-    <svg class="pan" id="pan" viewBox="-110 -110 220 220" role="group" aria-label="The handpan: tap a note field to strike it">
-      <defs>
-        <radialGradient id="shell" cx="38%" cy="32%" r="80%"><stop offset="0" stop-color="#6d655b"/><stop offset=".55" stop-color="#4a433b"/><stop offset="1" stop-color="#2a241e"/></radialGradient>
-        <radialGradient id="dimple" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#5a5249"/><stop offset="1" stop-color="#2f2923"/></radialGradient>
-        <radialGradient id="ding" cx="40%" cy="35%" r="80%"><stop offset="0" stop-color="#e3a273"/><stop offset=".6" stop-color="#c0703c"/><stop offset="1" stop-color="#8e4a20"/></radialGradient>
-        <radialGradient id="glow"><stop offset="0" stop-color="#E0884A" stop-opacity=".9"/><stop offset="1" stop-color="#E0884A" stop-opacity="0"/></radialGradient>
-        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#2E2720" flood-opacity=".35"/></filter>
-      </defs>
-      <circle r="104" fill="url(#shell)" filter="url(#soft)"/>
-      <circle r="104" fill="none" stroke="#211c17" stroke-width="2"/>
-      <g id="fields"></g>
-    </svg>
-    <div class="gate" id="gate"><span>Tap the handpan to start</span></div>
-    <div class="hint" id="hint">Tap a field, or press Play and listen</div>
-  </div>
-
-  <div class="knobs" id="knobs"></div>
-
-  <footer class="foot">
-    <p><b>The real HOLYphantam engine, running in your browser.</b> The plugin adds four layers, 21 instruments, a full synth page and MIDI, in your DAW.</p>
-    <a class="dl" id="dl" href="https://gush.best/#holyphantam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>Get the plugin, free</a>
-  </footer>
-</div>
-
-<script type="module">
-const $ = id => document.getElementById(id);
-const NS = "http://www.w3.org/2000/svg";
-const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-const noteName = n => NAMES[n % 12] + (Math.floor(n / 12) - 1);
-
-// what the engine reports, with D Kurd as the shape until it answers
-let scale = [50, 57, 58, 60, 62, 64, 65, 67, 69];   // ding D3, then the tone fields
-let presets = ["First Light"], order = [0], current = 0;   // order: the engine's preset indices shown, without "Init"
-const BY_HAND = new Set(["Steel Keys", "Felt Ember", "Copper Pad", "Brass Lead"]);   // keys and synth sounds: no player
-let ctx = null, node = null, playing = false;
-const tell = m => node && node.port.postMessage(m);
-const say = (type, data) => parent !== window && parent.postMessage({ gushLive: type, ...data }, "*");   // the site counts plays
-
-// ---------- the handpan's fields: the ding in the middle, tone fields alternating left and right around it ----------
-const fieldsG = $("fields"), fieldEls = new Map();
-function drawPan() {
-  fieldsG.textContent = "";
-  fieldEls.clear();
-  const tones = scale.slice(1), n = tones.length;
-  const place = (note, x, y, r, isDing) => {
-    const g = document.createElementNS(NS, "g");
-    g.setAttribute("class", "field" + (isDing ? " ding" : ""));
-    g.setAttribute("transform", `translate(${x} ${y})`);
-    g.setAttribute("tabindex", "0");
-    g.setAttribute("role", "button");
-    g.setAttribute("aria-label", noteName(note));
-    g.innerHTML = `<circle class="halo" r="${r * 1.7}" fill="url(#glow)" opacity="0"/>` +
-      `<ellipse rx="${r}" ry="${r * (isDing ? 1 : .82)}" fill="url(#${isDing ? "ding" : "dimple"})" stroke="${isDing ? "#7a3e19" : "#231e19"}" stroke-width="1.2"/>` +
-      `<ellipse class="lit" rx="${r * .9}" ry="${r * (isDing ? .9 : .72)}" fill="#E0884A" opacity="0"/>` +
-      `<text y="${r + 11}" text-anchor="middle">${noteName(note)}</text>`;
-    if (!isDing) g.firstElementChild.nextElementSibling.setAttribute("transform", `rotate(${Math.atan2(y, x) * 180 / Math.PI + 90})`);
-    fieldsG.appendChild(g);
-    fieldEls.set(note, g);
-    const down = e => { e.preventDefault(); strike(note, true); g.setPointerCapture?.(e.pointerId); };
-    g.addEventListener("pointerdown", down);
-    g.addEventListener("pointerup", () => release(note));
-    g.addEventListener("pointercancel", () => release(note));
-    g.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && !e.repeat) { e.preventDefault(); strike(note, true); } });
-    g.addEventListener("keyup", e => { if (e.key === "Enter" || e.key === " ") release(note); });
-  };
-  place(scale[0], 0, 0, 26, true);
-  tones.forEach((note, i) => {
-    // lowest tone at the bottom, then up the sides in turn, as handpans are tuned
-    const k = Math.ceil(i / 2) * (i % 2 ? 1 : -1);
-    const a = Math.PI / 2 + k * (2 * Math.PI / n) + (n % 2 ? 0 : Math.PI / n);
-    const rad = 70;
-    place(note, Math.cos(a) * rad, Math.sin(a) * rad, 17 - i * .5, false);
-  });
-}
-
-// a strike: the field glows copper and fades as the steel rings out
-const timers = new Map();
-function light(note, v = .85) {
-  let g = fieldEls.get(note);
-  if (!g) {
-    let best = null, d = 1e9;
-    for (const [n, el] of fieldEls) if ((n - note) % 12 === 0 && Math.abs(n - note) < d) { d = Math.abs(n - note); best = el; }
-    g = best;
-  }
-  if (!g) return;
-  const lit = g.querySelector(".lit"), halo = g.querySelector(".halo");
-  clearTimeout(timers.get(note));
-  lit.style.transition = halo.style.transition = "none";
-  lit.style.opacity = .55 * v + .2; halo.style.opacity = reduced ? 0 : v;
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    lit.style.transition = "opacity 1.6s cubic-bezier(.16,1,.3,1)";
-    halo.style.transition = "opacity 1.1s cubic-bezier(.16,1,.3,1)";
-    lit.style.opacity = 0; halo.style.opacity = 0;
-  }));
-}
-let struck = 0;
-async function strike(note, byHand) {
-  if (!node) await start();
-  wake();
-  tell({ pad: note, v: .82 });
-  light(note);
-  if (byHand && ++struck === 1) say("strike", {});
-  if (byHand && struck === 3) $("hint").style.opacity = 0;
-}
-function release(note) { tell({ padoff: note }); }
-
-// keys A..L play the ding and the fields in order
-const KEYS = "asdfghjkl";
-const held = new Set();
-addEventListener("keydown", e => {
-  if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-  const i = KEYS.indexOf(e.key.toLowerCase());
-  if (i < 0 || i >= scale.length) return;
-  held.add(i); strike(scale[i], true);
-});
-addEventListener("keydown", e => { if (e.key === "Escape") $("close").click(); });
-addEventListener("keyup", e => { const i = KEYS.indexOf(e.key.toLowerCase()); if (held.delete(i)) release(scale[i]); });
-
-// ---------- knobs: the master strip's macros ----------
-const KNOBS = [
-  { id: "space", label: "Space", param: 1, v: .7, fmt: v => Math.round(v * 100) + "%" },
-  { id: "strange", label: "Strange", param: 0, v: 0, fmt: v => Math.round(v * 100) + "%" },
-  { id: "drift", label: "Drift", param: 3, v: 0, fmt: v => Math.round(v * 100) + "%" },
-  { id: "width", label: "Width", param: 5, v: .6, scale: 2, fmt: v => Math.round(v * 200) + "%" },
-];
-function arc(v) {
-  const a0 = -135, a = a0 + 270 * v, r = 20, p = d => [Math.cos((d - 90) * Math.PI / 180) * r, Math.sin((d - 90) * Math.PI / 180) * r];
-  const [x0, y0] = p(a0), [x1, y1] = p(a);
-  return `M${x0} ${y0} A${r} ${r} 0 ${270 * v > 180 ? 1 : 0} 1 ${x1} ${y1}`;
-}
-KNOBS.forEach(k => {
-  const el = document.createElement("div");
-  el.className = "knob"; el.tabIndex = 0; el.setAttribute("role", "slider");
-  el.setAttribute("aria-label", k.label); el.setAttribute("aria-valuemin", 0); el.setAttribute("aria-valuemax", 100);
-  el.innerHTML = `<svg viewBox="-26 -26 52 52"><circle r="20" fill="#F7EFE2" stroke="#DDCFB9" stroke-width="1.5"/><path class="trk" d="${arc(1)}" fill="none" stroke="#DDCFB9" stroke-width="3" stroke-linecap="round"/><path class="val" fill="none" stroke="#B2622F" stroke-width="3" stroke-linecap="round"/><line class="ptr" x1="0" y1="-6" x2="0" y2="-15" stroke="#2E2720" stroke-width="2" stroke-linecap="round"/></svg><span class="v"></span><span class="l">${k.label}</span>`;
-  $("knobs").appendChild(el);
-  const set = (v, quiet) => {
-    k.v = Math.min(1, Math.max(0, v));
-    el.querySelector(".val").setAttribute("d", k.v > .001 ? arc(k.v) : "");
-    el.querySelector(".ptr").setAttribute("transform", `rotate(${-135 + 270 * k.v})`);
-    el.querySelector(".v").textContent = k.fmt(k.v);
-    el.setAttribute("aria-valuenow", Math.round(k.v * 100));
-    if (!quiet) tell({ param: k.param, value: k.v * (k.scale || 1) });
-  };
-  k.set = set; set(k.v);
-  let y0 = 0, v0 = 0;
-  el.addEventListener("pointerdown", e => { y0 = e.clientY; v0 = k.v; el.setPointerCapture(e.pointerId); });
-  el.addEventListener("pointermove", e => { if (el.hasPointerCapture(e.pointerId)) set(v0 + (y0 - e.clientY) / 160); });
-  el.addEventListener("keydown", e => {
-    const d = { ArrowUp: .05, ArrowRight: .05, ArrowDown: -.05, ArrowLeft: -.05 }[e.key];
-    if (d) { e.preventDefault(); set(k.v + d); }
-  });
-});
-
-// ---------- presets and the player ----------
-function showPreset() {
-  const name = presets[order[current]] || "First Light", hand = BY_HAND.has(name);
-  $("pname").textContent = name;
-  // the player keeps the listener's wish: off on a by-hand sound, back on at the next one that plays
-  setPlaying(wantPlay && !hand);
-  $("play").disabled = hand;
-  $("play").title = hand ? "This sound is for playing by hand" : "";
-}
-function choose(i, quiet) {
-  current = (i + order.length) % order.length;
-  showPreset(); tell({ preset: order[current] });
-  if (!quiet) say("preset", { name: presets[order[current]] });
-}
-$("prev").onclick = () => choose(current - 1);
-$("next").onclick = () => choose(current + 1);
-let wantPlay = false;
-function setPlaying(on) {
-  playing = on;
-  $("play").setAttribute("aria-pressed", on);
-  $("play").textContent = on ? (matchMedia("(max-width:640px)").matches ? "Playing" : "Player running") : "Play";
-  tell({ play: on });
-}
-$("play").onclick = async () => {
-  if (!node) await start();
-  wake();
-  wantPlay = !playing;
-  setPlaying(wantPlay);
-  if (wantPlay) say("player", {});
-};
-$("close").onclick = () => { wantPlay = false; setPlaying(false); if (ctx) ctx.suspend(); parent !== window ? say("close", {}) : history.back(); };
-
-// a phone call, a locked screen or a browser that started us without a tap leaves the sound paused: every touch wakes it
-function wake() { if (ctx && ctx.state !== "running") ctx.resume(); }
-
-// ---------- the engine: the plugin's own DSP, compiled to WebAssembly, in an AudioWorklet ----------
-let starting = null;
-function start() {
-  return starting ??= (async () => {
-    ctx = new AudioContext({ latencyHint: "interactive" });
-    await ctx.audioWorklet.addModule("worklet.js");
-    const wasm = await (await fetch("phantam.wasm")).arrayBuffer();
-    node = new AudioWorkletNode(ctx, "phantam", { outputChannelCount: [2], processorOptions: { wasm } });
-    node.connect(ctx.destination);
-    await new Promise(res => {
-      node.port.onmessage = e => {
-        const m = e.data;
-        if (m.ready) {
-          presets = m.presets;
-          order = presets.map((_, i) => i).filter(i => presets[i] !== "Init");
-          choose(Math.max(0, order.indexOf(presets.indexOf("First Light"))), true);
-          res();
-        }
-        else if (m.sound) {
-          scale = m.sound.scale; drawPan();
-          $("hint").textContent = m.sound.scaleName + (matchMedia("(hover: hover)").matches ? " · keys A S D F G H J K L" : " · tap a field");
-          // the preset's own Strange, Space, Drift and Width on the knobs
-          KNOBS.forEach(k => k.set(m.sound.params[k.param] / (k.scale || 1), true));
-        }
-        else if (m.strikes) m.strikes.forEach(n => light(n, .7));
-      };
-    });
-    $("gate").classList.add("gone");
-    say("start", {});
-  })();
-}
-
-$("dl").addEventListener("click", e => { if (parent !== window) { e.preventDefault(); wantPlay = false; setPlaying(false); say("download", {}); } });
-drawPan();
-</script>
+<div id="win"></div>
+<button id="x" aria-label="Close" title="Close">&times;</button>
+<span id="hint">Tap anywhere to wake the sound</span>
+<a id="dl" href="https://gush.best/#holyphantam" target="_blank" rel="noopener">Get the plugin, free</a>
+<div id="turn"><div class="ph"></div><h1>Turn your phone sideways</h1><p>HOLYphantam is a wide instrument. It needs the whole screen.</p><button id="small">Play it small</button></div>
+<script src="data.js"></script>
+<script src="params.js"></script>
+<script src="presets_data.js"></script>
+<script src="mock.js"></script>
+<script src="icons.js"></script>
+<script src="marks.js"></script>
+<script src="engine.js"></script>
+<script src="ui.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
