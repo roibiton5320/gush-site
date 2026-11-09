@@ -758,6 +758,7 @@ if (isWin) {
 }
 
 /* ---------- Play it live: the real engine, full screen. Every step is counted, so we see who plays before downloading ---------- */
+const LIVE_VERSION = "2026-11-09";   // bump when a live plugin page changes
 let liveBox = null, liveFrame = null, liveFrom = null, livePlugin = "";   // the layer sits at the end of the page, after this script
 function openLive(plugin) {
   liveBox = liveBox || document.getElementById("live");
@@ -767,7 +768,7 @@ function openLive(plugin) {
   liveBox.dataset.plugin = plugin;
   if (!liveFrame) {
     liveFrame = document.createElement("iframe");
-    liveFrame.src = "live/" + (plugin === "scan" ? "scan-rescan" : plugin) + "/";
+    liveFrame.src = "live/" + (plugin === "scan" ? "scan-rescan" : plugin) + "/?v=" + LIVE_VERSION;   // a new version is never served from an old cache
     liveFrame.allow = "autoplay";
     liveFrame.title = (plugin === "scan" ? "Scan & Rescan" : "HOLYphantam") + ", playable";
     liveBox.appendChild(liveFrame);
